@@ -4,24 +4,21 @@ use std::io;
 use futures::{Future, Stream};
 use hyper::client::HttpConnector;
 use hyper::header::{Authorization, Basic};
-use hyper::{Client, Uri, Headers};
+use hyper::{Client, Headers, Uri};
 use hyper_tls::HttpsConnector;
-use serde::{Deserialize};
+use serde::Deserialize;
 use serde_json::Value as JsValue;
 use tokio_core::reactor::Core;
 use url::Url;
 
 struct UriMaker {
-    /// The prefix of every url we'll be producing.
     api_base: String,
 }
 
 impl UriMaker {
     /// Convenience constructor for UriMaker.
     pub fn new(api_base: String) -> UriMaker {
-        UriMaker {
-            api_base,
-        }
+        UriMaker { api_base }
     }
 
     /// Convert from a `url::Url` to a `hyper::Uri`.
@@ -35,10 +32,30 @@ impl UriMaker {
 
         Ok(url)
     }
-
-    /// Get ticker for given trading pair. e.g. XBTZAR
+    
+    /// Build https://api.mybitx.com/api/1/ticker?pair=...
     pub fn ticker(&self, pair: &str) -> Uri {
         let mut url = self.build_url("ticker").unwrap();
+        url.query_pairs_mut().append_pair("pair", pair);
+        Self::url_to_uri(&url)
+    }
+
+    /// Build https://api.mybitx.com/api/1/tickers
+    pub fn tickers(&self) -> Uri {
+        let url = self.build_url("tickers").unwrap();
+        Self::url_to_uri(&url)
+    }
+
+    /// Build https://api.mybitx.com/api/1/orderbook_top?pair=...
+    pub fn orderbook_top(&self, pair: &str) -> Uri {
+        let mut url = self.build_url("orderbook_top").unwrap();
+        url.query_pairs_mut().append_pair("pair", pair);
+        Self::url_to_uri(&url)
+    }
+
+    /// Build https://api.mybitx.com/api/1/orderbook?pair=...
+    pub fn orderbook(&self, pair: &str) -> Uri {
+        let mut url = self.build_url("orderbook").unwrap();
         url.query_pairs_mut().append_pair("pair", pair);
         Self::url_to_uri(&url)
     }
@@ -50,11 +67,8 @@ type HttpsClient = Client<HttpsConnector<HttpConnector>, hyper::Body>;
 
 /// The top level interface for interacting with the remote service.
 pub struct LunoClient {
-    /// The `UriMaker` we built in Part 1 of the series.
     uri_maker: UriMaker,
-    /// tokio "core" to run our requests in.
     core: RefCell<Core>,
-    /// hyper http client to build requests with.
     http: HttpsClient,
 }
 
@@ -62,8 +76,6 @@ fn to_io_error<E>(err: E) -> io::Error
 where
     E: Into<Box<std::error::Error + Send + Sync>>,
 {
-    // We can create a new IO Error with an ErrorKind of "other", then
-    // pass in the actual error as data inside the wrapper type.
     io::Error::new(io::ErrorKind::Other, err)
 }
 
@@ -107,13 +119,42 @@ impl LunoClient {
         Box::new(f)
     }
 
+    /// Get the current ticker for a given trading pair.
     pub fn get_ticker(&self, pair: &str) -> Result<Ticker, io::Error> {
         let uri = self.uri_maker.ticker(pair);
         let work = self.get_json(uri).and_then(|value| {
-            println!("{}", value);
             let ticker: Ticker = serde_json::from_value(value).map_err(to_io_error)?;
-
             Ok(ticker)
+        });
+        self.core.borrow_mut().run(work)
+    }
+
+    /// Get tickers for all available trading pairs.
+    pub fn get_tickers(&self) -> Result<TickerList, io::Error> {
+        let uri = self.uri_maker.tickers();
+        let work = self.get_json(uri).and_then(|value| {
+            let tickers: TickerList = serde_json::from_value(value).map_err(to_io_error)?;
+            Ok(tickers)
+        });
+        self.core.borrow_mut().run(work)
+    }
+
+    /// Get a list of the top 100 bids and asks in the order book for a trading pair.
+    pub fn get_orderbook_top(&self, pair: &str) -> Result<Orderbook, io::Error> {
+        let uri = self.uri_maker.orderbook_top(pair);
+        let work = self.get_json(uri).and_then(|value| {
+            let orderbook_top: Orderbook = serde_json::from_value(value).map_err(to_io_error)?;
+            Ok(orderbook_top)
+        });
+        self.core.borrow_mut().run(work)
+    }
+
+    /// Get the full list of bids and asks in the order book for a trading pair.
+    pub fn get_orderbook(&self, pair: &str) -> Result<Orderbook, io::Error> {
+        let uri = self.uri_maker.orderbook(pair);
+        let work = self.get_json(uri).and_then(|value| {
+            let orderbook: Orderbook = serde_json::from_value(value).map_err(to_io_error)?;
+            Ok(orderbook)
         });
         self.core.borrow_mut().run(work)
     }
@@ -126,4 +167,29 @@ pub struct Ticker {
     pub bid: String,
     pub rolling_24_hour_volume: String,
     pub last_trade: String,
+    pub pair: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct TickerList {
+    pub tickers: Vec<Ticker>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Bid {
+    volume: String,
+    price: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Ask {
+    volume: String,
+    price: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Orderbook {
+    timestamp: u64,
+    bids: Vec<Bid>,
+    asks: Vec<Ask>,
 }
