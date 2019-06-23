@@ -1,0 +1,7 @@
+[package]
+name = "luno"
+version = "0.1.0"
+authors = ["Duncan Dean <duncangleeddean@gmail.com>"]
+edition = "2018"
+
+[dependencies]
