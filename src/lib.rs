@@ -59,6 +59,13 @@ impl UriMaker {
         url.query_pairs_mut().append_pair("pair", pair);
         Self::url_to_uri(&url)
     }
+
+    /// Build https://api.mybitx.com/api/1/trades?pair=...
+    pub fn trades(&self, pair: &str) -> Uri {
+        let mut url = self.build_url("trades").unwrap();
+        url.query_pairs_mut().append_pair("pair", pair);
+        Self::url_to_uri(&url)
+    }
 }
 
 /// type alias for a custom hyper client, configured for HTTPS
@@ -158,6 +165,16 @@ impl LunoClient {
         });
         self.core.borrow_mut().run(work)
     }
+
+    /// Get the latest trades for a trading pair (limited to 100).
+    pub fn get_trades(&self, pair: &str) -> Result<TradeList, io::Error> {
+        let uri = self.uri_maker.trades(pair);
+        let work = self.get_json(uri).and_then(|value| {
+            let trades: TradeList = serde_json::from_value(value).map_err(to_io_error)?;
+            Ok(trades)
+        });
+        self.core.borrow_mut().run(work)
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -192,4 +209,17 @@ pub struct Orderbook {
     timestamp: u64,
     bids: Vec<Bid>,
     asks: Vec<Ask>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Trade {
+    pub volume: String,
+    pub timestamp: u64,
+    pub price: String,
+    pub is_buy: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct TradeList {
+    pub trades: Vec<Trade>,
 }
