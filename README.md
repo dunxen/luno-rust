@@ -1,4 +1,4 @@
-# Luno Rust API Wrapper
+# (Unofficial) Luno Rust API Wrapper
 
 A work-in-progress.
 
