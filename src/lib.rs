@@ -1,6 +1,9 @@
 use reqwest::Client;
 use serde::de::DeserializeOwned;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+
+const API_BASE: &str = "https://api.mybitx.com/api/1/";
 
 struct UrlMaker {
     api_base: reqwest::Url,
@@ -52,6 +55,12 @@ impl UrlMaker {
         url.query_pairs_mut().append_pair("pair", pair);
         url
     }
+
+    // Build https://api.mybitx.com/api/1/accounts
+    pub fn accounts(&self) -> reqwest::Url {
+        let url = self.build_url("accounts");
+        url
+    }
 }
 
 struct Credentials {
@@ -76,7 +85,7 @@ impl LunoClient {
     pub fn new(key: String, secret: String) -> LunoClient {
         let credentials = Credentials::new(key, secret);
         let http = Client::new();
-        let url_maker = UrlMaker::new("https://api.mybitx.com/api/1/".to_owned());
+        let url_maker = UrlMaker::new(API_BASE.to_owned());
 
         LunoClient {
             credentials,
@@ -95,6 +104,22 @@ impl LunoClient {
                 self.credentials.key.to_owned(),
                 Some(self.credentials.secret.to_owned()),
             )
+            .send()?
+            .json()
+    }
+
+    #[allow(dead_code)]
+    fn post_son<T>(&self, url: reqwest::Url, entity: T) -> Result<T, reqwest::Error>
+    where
+        T: Serialize + DeserializeOwned,
+    {
+        self.http
+            .post(url)
+            .basic_auth(
+                self.credentials.key.to_owned(),
+                Some(self.credentials.secret.to_owned()),
+            )
+            .json(&entity)
             .send()?
             .json()
     }
@@ -127,6 +152,24 @@ impl LunoClient {
     pub fn get_trades(&self, pair: &str) -> Result<TradeList, reqwest::Error> {
         let url = self.url_maker.trades(pair);
         self.get(url)
+    }
+
+    /// Create an additional account for the specified currency..
+    pub fn create_account(&self, currency: &str, name: &str) -> Result<Account, reqwest::Error> {
+        let url = self.url_maker.accounts();
+        let mut params = HashMap::new();
+        params.insert("currency", currency);
+        params.insert("name", name);
+
+        self.http
+            .post(url)
+            .basic_auth(
+                self.credentials.key.to_owned(),
+                Some(self.credentials.secret.to_owned()),
+            )
+            .form(&params)
+            .send()?
+            .json()
     }
 }
 
@@ -175,4 +218,11 @@ pub struct Trade {
 #[derive(Debug, Deserialize)]
 pub struct TradeList {
     pub trades: Vec<Trade>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Account {
+    pub id: Option<String>,
+    pub currency: String,
+    pub name: String,
 }
