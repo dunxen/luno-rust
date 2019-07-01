@@ -61,6 +61,12 @@ impl UrlMaker {
         let url = self.build_url("accounts");
         url
     }
+
+    // Build https://api.mybitx.com/api/1/balance
+    pub fn balance(&self) -> reqwest::Url {
+        let url = self.build_url("balance");
+        url
+    }
 }
 
 struct Credentials {
@@ -171,6 +177,12 @@ impl LunoClient {
             .send()?
             .json()
     }
+
+    /// Get a list of all accounts and their respective balances.
+    pub fn get_balances(&self) -> Result<BalanceList, reqwest::Error> {
+        let url = self.url_maker.balance();
+        self.get(url)
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -225,4 +237,19 @@ pub struct Account {
     pub id: Option<String>,
     pub currency: String,
     pub name: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Balance {
+    pub account_id: String,
+    pub asset: String,
+    pub balance: String,
+    pub reserved: String,
+    pub unconfirmed: String,
+    pub name: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct BalanceList {
+    pub balances: Vec<Balance>,
 }
