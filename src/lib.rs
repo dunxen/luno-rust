@@ -67,6 +67,25 @@ impl UrlMaker {
         let url = self.build_url("balance");
         url
     }
+
+    // Build https://api.mybitx.com/api/1/account/:id/transactions
+    pub fn transactions(&self, account_id: &str, min_row: u64, max_row: u64) -> reqwest::Url {
+        let mut url = self.accounts()
+            .join(account_id).unwrap()
+            .join("transactions").unwrap();
+        url.query_pairs_mut()
+            .append_pair("min_row", &min_row.to_string())
+            .append_pair("max_row", &max_row.to_string());
+        url
+    }
+
+    // Build https://api.mybitx.com/api/1/account/:id/transactions
+    pub fn pending_transactions(&self, account_id: &str) -> reqwest::Url {
+        let url = self.accounts()
+            .join(account_id).unwrap()
+            .join("pending").unwrap();
+        url
+    }
 }
 
 struct Credentials {
@@ -183,6 +202,16 @@ impl LunoClient {
         let url = self.url_maker.balance();
         self.get(url)
     }
+
+    pub fn get_transactions(&self, account_id: &str, min_row: u64, max_row: u64) -> Result<TransactionList, reqwest::Error> {
+        let url = self.url_maker.transactions(account_id, min_row, max_row);
+        self.get(url)
+    }
+
+    pub fn get_pending_transactions(&self, account_id: &str) -> Result<PendingTransactionList, reqwest::Error> {
+        let url = self.url_maker.pending_transactions(account_id);
+        self.get(url)
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -252,4 +281,26 @@ pub struct Balance {
 #[derive(Debug, Deserialize)]
 pub struct BalanceList {
     pub balances: Vec<Balance>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Transaction {
+    row_index: Option<u64>,
+    timestamp: u64,
+    balance: String,
+    available: String,
+    balance_delta: String,
+    available_delta: String,
+    currency: String,
+    description: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct TransactionList {
+    transactions: Vec<Transaction>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PendingTransactionList {
+    pending: Vec<Transaction>,
 }
