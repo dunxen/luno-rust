@@ -9,6 +9,7 @@ Currently implemented calls:
 - `get_ticker(pair: &str)`
 - `get_tickers()`
 - `get_trades(pair: &str)`
+- `create_account(currency: &str, name: &str)`
 
 Example with `get_trades()`:
 
