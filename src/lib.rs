@@ -84,6 +84,11 @@ impl UrlMaker {
             .extend(&[account_id, "pending"]);
         url
     }
+
+    // Build https://api.mybitx.com/api/1/listorders
+    pub fn list_orders(&self) -> reqwest::Url {
+        self.build_url("listorders")
+    }
 }
 
 struct Credentials {
@@ -218,6 +223,15 @@ impl LunoClient {
         let url = self.url_maker.pending_transactions(account_id);
         self.get(url)
     }
+
+    pub fn list_orders(&self) -> ListOrdersBuilder {
+        ListOrdersBuilder {
+            luno_client: self,
+            url: self.url_maker.list_orders(),
+            pair: None,
+            state: None,
+        }
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -232,7 +246,7 @@ pub struct Ticker {
 
 #[derive(Debug, Deserialize)]
 pub struct TickerList {
-    pub tickers: Vec<Ticker>,
+    pub tickers: Option<Vec<Ticker>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -250,8 +264,8 @@ pub struct Ask {
 #[derive(Debug, Deserialize)]
 pub struct Orderbook {
     pub timestamp: u64,
-    pub bids: Vec<Bid>,
-    pub asks: Vec<Ask>,
+    pub bids: Option<Vec<Bid>>,
+    pub asks: Option<Vec<Ask>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -264,7 +278,7 @@ pub struct Trade {
 
 #[derive(Debug, Deserialize)]
 pub struct TradeList {
-    pub trades: Vec<Trade>,
+    pub trades: Option<Vec<Trade>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -286,7 +300,7 @@ pub struct Balance {
 
 #[derive(Debug, Deserialize)]
 pub struct BalanceList {
-    pub balance: Vec<Balance>,
+    pub balance: Option<Vec<Balance>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -304,11 +318,89 @@ pub struct Transaction {
 #[derive(Debug, Deserialize)]
 pub struct TransactionList {
     pub id: String,
-    pub transactions: Vec<Transaction>,
+    pub transactions: Option<Vec<Transaction>>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct PendingTransactionList {
     pub id: String,
-    pub pending: Vec<Transaction>,
+    pub pending: Option<Vec<Transaction>>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Order {
+    pub base: String,
+    pub counter: String,
+    pub creation_timestamp: u64,
+    pub expiration_timestamp: u64,
+    pub completed_timestamp: u64,
+    pub fee_base: String,
+    pub fee_counter: String,
+    pub limit_price: String,
+    pub limit_volume: String,
+    pub order_id: String,
+    pub pair: String,
+    pub state: String,
+    pub r#type: String,
+}
+
+pub struct ListOrdersBuilder<'a> {
+    state: Option<&'a str>,
+    pair: Option<&'a str>,
+    luno_client: &'a LunoClient,
+    url: reqwest::Url,
+}
+
+impl<'a> ListOrdersBuilder<'a> {
+    pub fn filter_state(&mut self, state: OrderState) -> &mut ListOrdersBuilder<'a> {
+        match state {
+            OrderState::Complete => self.state = Some("COMPLETE"),
+            OrderState::Pending => self.state = Some("PENDING"),
+        }
+        self
+    }
+
+    pub fn filter_pair(&mut self, pair: &'a str) -> &mut ListOrdersBuilder<'a> {
+        self.pair = Some(pair);
+        self
+    }
+
+    pub fn get(&self) -> Result<OrderList, reqwest::Error> {
+        let mut url = self.url.clone();
+        if self.state.is_some() {
+            url.query_pairs_mut()
+                .append_pair("state", &self.state.unwrap());
+        }
+        if self.pair.is_some() {
+            url.query_pairs_mut()
+                .append_pair("pair", &self.pair.unwrap());
+        }
+        self.luno_client.get(url)
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct OrderList {
+    pub orders: Option<Vec<Order>>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct LimitOrder {
+    pub pair: String,
+    pub r#type: String,
+    pub volume: String,
+    pub price: String,
+    pub base_account_id: String,
+    pub counter_account_id: String,
+    pub post_only: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PostLimitOrderResponse {
+    pub order_id: String,
+}
+
+pub enum OrderState {
+    Complete,
+    Pending,
 }
