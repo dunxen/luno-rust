@@ -9,7 +9,7 @@ fn main() {
     match client.get_balances() {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
-            for balance in result.balances.into_iter() {
+            for balance in result.balance.into_iter() {
                 println!("{:?}", balance);
             }
         }

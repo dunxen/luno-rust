@@ -18,8 +18,7 @@ impl UrlMaker {
 
     /// Append a path to the API root
     fn build_url(&self, path: &str) -> reqwest::Url {
-        let url = self.api_base.join(path).unwrap();
-        url
+        self.api_base.join(path).unwrap()
     }
 
     /// Build https://api.mybitx.com/api/1/ticker?pair=...
@@ -31,8 +30,7 @@ impl UrlMaker {
 
     /// Build https://api.mybitx.com/api/1/tickers
     pub fn tickers(&self) -> reqwest::Url {
-        let url = self.build_url("tickers");
-        url
+        self.build_url("tickers")
     }
 
     /// Build https://api.mybitx.com/api/1/orderbook_top?pair=...
@@ -58,32 +56,32 @@ impl UrlMaker {
 
     // Build https://api.mybitx.com/api/1/accounts
     pub fn accounts(&self) -> reqwest::Url {
-        let url = self.build_url("accounts");
-        url
+        self.build_url("accounts")
     }
 
     // Build https://api.mybitx.com/api/1/balance
     pub fn balance(&self) -> reqwest::Url {
-        let url = self.build_url("balance");
-        url
+        self.build_url("balance")
     }
 
     // Build https://api.mybitx.com/api/1/account/:id/transactions
     pub fn transactions(&self, account_id: &str, min_row: u64, max_row: u64) -> reqwest::Url {
-        let mut url = self.accounts()
-            .join(account_id).unwrap()
-            .join("transactions").unwrap();
+        let mut url = self.accounts();
+        url.path_segments_mut()
+            .unwrap()
+            .extend(&[account_id, "transactions"]);
         url.query_pairs_mut()
             .append_pair("min_row", &min_row.to_string())
             .append_pair("max_row", &max_row.to_string());
         url
     }
 
-    // Build https://api.mybitx.com/api/1/account/:id/transactions
+    // Build https://api.mybitx.com/api/1/account/:id/pending
     pub fn pending_transactions(&self, account_id: &str) -> reqwest::Url {
-        let url = self.accounts()
-            .join(account_id).unwrap()
-            .join("pending").unwrap();
+        let mut url = self.accounts();
+        url.path_segments_mut()
+            .unwrap()
+            .extend(&[account_id, "pending"]);
         url
     }
 }
@@ -203,12 +201,20 @@ impl LunoClient {
         self.get(url)
     }
 
-    pub fn get_transactions(&self, account_id: &str, min_row: u64, max_row: u64) -> Result<TransactionList, reqwest::Error> {
+    pub fn get_transactions(
+        &self,
+        account_id: &str,
+        min_row: u64,
+        max_row: u64,
+    ) -> Result<TransactionList, reqwest::Error> {
         let url = self.url_maker.transactions(account_id, min_row, max_row);
         self.get(url)
     }
 
-    pub fn get_pending_transactions(&self, account_id: &str) -> Result<PendingTransactionList, reqwest::Error> {
+    pub fn get_pending_transactions(
+        &self,
+        account_id: &str,
+    ) -> Result<PendingTransactionList, reqwest::Error> {
         let url = self.url_maker.pending_transactions(account_id);
         self.get(url)
     }
@@ -231,21 +237,21 @@ pub struct TickerList {
 
 #[derive(Debug, Deserialize)]
 pub struct Bid {
-    volume: String,
-    price: String,
+    pub volume: String,
+    pub price: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Ask {
-    volume: String,
-    price: String,
+    pub volume: String,
+    pub price: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Orderbook {
-    timestamp: u64,
-    bids: Vec<Bid>,
-    asks: Vec<Ask>,
+    pub timestamp: u64,
+    pub bids: Vec<Bid>,
+    pub asks: Vec<Ask>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -275,32 +281,34 @@ pub struct Balance {
     pub balance: String,
     pub reserved: String,
     pub unconfirmed: String,
-    pub name: String,
+    pub name: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct BalanceList {
-    pub balances: Vec<Balance>,
+    pub balance: Vec<Balance>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Transaction {
-    row_index: Option<u64>,
-    timestamp: u64,
-    balance: String,
-    available: String,
-    balance_delta: String,
-    available_delta: String,
-    currency: String,
-    description: String,
+    pub row_index: Option<u64>,
+    pub timestamp: u64,
+    pub balance: f64,
+    pub available: f64,
+    pub balance_delta: f64,
+    pub available_delta: f64,
+    pub currency: String,
+    pub description: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct TransactionList {
-    transactions: Vec<Transaction>,
+    pub id: String,
+    pub transactions: Vec<Transaction>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct PendingTransactionList {
-    pending: Vec<Transaction>,
+    pub id: String,
+    pub pending: Vec<Transaction>,
 }
