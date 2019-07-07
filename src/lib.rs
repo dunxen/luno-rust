@@ -89,6 +89,11 @@ impl UrlMaker {
     pub fn list_orders(&self) -> reqwest::Url {
         self.build_url("listorders")
     }
+
+    // Build https://api.mybitx.com/api/1/postorder
+    pub fn post_order(&self) -> reqwest::Url {
+        self.build_url("postorder")
+    }
 }
 
 struct Credentials {
@@ -224,12 +229,44 @@ impl LunoClient {
         self.get(url)
     }
 
+    /// Get a list of the most recently placed orders.
+    /// Note that `list_orders()` returns a `ListOrdersBuilder`
+    /// that allows you chain pair and state filters onto your
+    /// request.
+    ///
+    /// For example:
+    /// ```rust
+    /// let pending_orders = list_orders()
+    ///     .filter_pair("XBTZAR")
+    ///     .filter_state(OrderState::Pending)
+    ///     .get();
+    /// ```
     pub fn list_orders(&self) -> ListOrdersBuilder {
         ListOrdersBuilder {
             luno_client: self,
             url: self.url_maker.list_orders(),
             pair: None,
             state: None,
+        }
+    }
+
+    /// Create a new trade order.
+    pub fn limit_order(
+        &self,
+        pair: &str,
+        r#type: &str,
+        volume: &str,
+        price: &str,
+    ) -> PostLimitOrderBuilder {
+        let mut params = HashMap::new();
+        params.insert("pair", pair.to_owned());
+        params.insert("type", r#type.to_owned());
+        params.insert("volume", volume.to_owned());
+        params.insert("price", price.to_owned());
+        PostLimitOrderBuilder {
+            luno_client: self,
+            url: self.url_maker.post_order(),
+            params,
         }
     }
 }
@@ -397,10 +434,49 @@ pub struct LimitOrder {
 
 #[derive(Debug, Deserialize)]
 pub struct PostLimitOrderResponse {
-    pub order_id: String,
+    pub order_id: Option<String>,
+    pub error: Option<String>,
 }
 
 pub enum OrderState {
     Complete,
     Pending,
+}
+
+pub struct PostLimitOrderBuilder<'a> {
+    luno_client: &'a LunoClient,
+    url: reqwest::Url,
+    params: HashMap<&'a str, String>,
+}
+
+impl<'a> PostLimitOrderBuilder<'a> {
+    pub fn with_base_account(&mut self, id: &'a str) -> &mut PostLimitOrderBuilder<'a> {
+        self.params.insert("counter_account_id", id.to_owned());
+        self
+    }
+
+    pub fn with_counter_account(&mut self, id: &'a str) -> &mut PostLimitOrderBuilder<'a> {
+        self.params.insert("base_account_id", id.to_owned());
+        self
+    }
+
+    pub fn with_post_only(&mut self, is_post_only: bool) -> &mut PostLimitOrderBuilder<'a> {
+        let post_only = (&is_post_only).to_owned();
+        self.params.insert("post_only", post_only.to_string());
+        self
+    }
+
+    pub fn post(&mut self) -> Result<PostLimitOrderResponse, reqwest::Error> {
+        let url = self.url.clone();
+        self.luno_client
+            .http
+            .post(url)
+            .basic_auth(
+                self.luno_client.credentials.key.to_owned(),
+                Some(self.luno_client.credentials.secret.to_owned()),
+            )
+            .form(&self.params)
+            .send()?
+            .json()
+    }
 }

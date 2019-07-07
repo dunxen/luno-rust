@@ -1,4 +1,4 @@
-use luno::{LunoClient, OrderState};
+use luno::LunoClient;
 
 fn main() {
     let key = String::from("LUNO_API_KEY");
@@ -7,15 +7,13 @@ fn main() {
     let client = LunoClient::new(key, secret);
 
     match client
-        .list_orders()
-        .filter_state(OrderState::Complete)
-        .get()
+        .limit_order("XBTZAR", "ASK", "VOLUME", "PRICE")
+        .with_post_only(true)
+        .post()
     {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
-            if let Some(order) = result.orders {
-                println!("{:?}", order);
-            }
+            println!("{:?}", result);
         }
     }
 }
