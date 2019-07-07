@@ -9,7 +9,9 @@ fn main() {
     match client.get_tickers() {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
-            println!("{:?}", result.tickers);
+            if let Some(ticker) = result.tickers {
+                println!("{:?}", ticker);
+            }
         }
     }
 }

@@ -9,7 +9,7 @@ fn main() {
     match client.get_pending_transactions("ACCOUNT_ID") {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
-            for txn in result.pending.into_iter() {
+            if let Some(txn) = result.pending {
                 println!("{:?}", txn);
             }
         }

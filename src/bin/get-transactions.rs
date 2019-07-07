@@ -9,7 +9,7 @@ fn main() {
     match client.get_transactions("ACCOUNT_ID", 1, 100) {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
-            for txn in result.transactions.into_iter() {
+            if let Some(txn) = result.transactions {
                 println!("{:?}", txn);
             }
         }

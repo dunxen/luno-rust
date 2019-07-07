@@ -9,7 +9,7 @@ fn main() {
     match client.get_trades("XBTZAR") {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
-            for trade in result.trades.into_iter() {
+            if let Some(trade) = result.trades {
                 println!("{:?}", trade);
             }
         }

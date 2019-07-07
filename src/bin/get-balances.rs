@@ -9,7 +9,7 @@ fn main() {
     match client.get_balances() {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
-            for balance in result.balance.into_iter() {
+            if let Some(balance) = result.balance {
                 println!("{:?}", balance);
             }
         }
