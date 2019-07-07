@@ -2,6 +2,8 @@
 
 A work-in-progress.
 
+Please read the license. This software is by no means production ready and use of it is at your own risk!
+
 Currently implemented calls:
 
 - `get_orderbook_top(pair: &str)`
