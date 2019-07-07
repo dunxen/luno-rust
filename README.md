@@ -10,7 +10,7 @@ Currently implemented calls:
 - `get_tickers()`
 - `get_trades(pair: &str)`
 - `create_account(currency: &str, name: &str)`
-- `get_transactions(account_id: &str, min_row: u64, max_row: max_64)`
+- `get_transactions(account_id: &str, min_row: u64, max_row: u64)`
 - `get_pending_transactions(account_id: &str)`
 
 Example with `get_trades()`:
