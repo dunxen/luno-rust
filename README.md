@@ -12,6 +12,7 @@ Currently implemented calls:
 - `create_account(currency: &str, name: &str)`
 - `get_transactions(account_id: &str, min_row: u64, max_row: u64)`
 - `get_pending_transactions(account_id: &str)`
+- `list_orders()`
 
 Example with `get_trades()`:
 
