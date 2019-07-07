@@ -137,7 +137,7 @@ impl LunoClient {
     }
 
     #[allow(dead_code)]
-    fn post_son<T>(&self, url: reqwest::Url, entity: T) -> Result<T, reqwest::Error>
+    fn post_json<T>(&self, url: reqwest::Url, entity: T) -> Result<T, reqwest::Error>
     where
         T: Serialize + DeserializeOwned,
     {

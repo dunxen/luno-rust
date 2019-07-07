@@ -6,8 +6,11 @@ fn main() {
 
     let client = LunoClient::new(key, secret);
 
-    match client.list_orders()
-      .filter_state(OrderState::Complete).get() {
+    match client
+        .list_orders()
+        .filter_state(OrderState::Complete)
+        .get()
+    {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
             for order in result.orders.into_iter() {

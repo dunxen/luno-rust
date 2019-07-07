@@ -6,7 +6,7 @@ fn main() {
 
     let client = LunoClient::new(key, secret);
 
-    match client.get_pending_transactions("ACCOUNT_ID"){
+    match client.get_pending_transactions("ACCOUNT_ID") {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
             for txn in result.pending.into_iter() {
