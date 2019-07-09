@@ -2,6 +2,7 @@ use reqwest::Client;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::collections::HashMap;
+use std::string::ToString;
 
 use crate::accounts;
 use crate::credentials;
@@ -63,8 +64,8 @@ impl LunoClient {
     }
 
     /// Get the current ticker for a given trading pair.
-    pub fn get_ticker(&self, pair: &str) -> Result<market::Ticker, reqwest::Error> {
-        let url = self.url_maker.ticker(pair);
+    pub fn get_ticker(&self, pair: market::TradingPair) -> Result<market::Ticker, reqwest::Error> {
+        let url = self.url_maker.ticker(&pair.to_string());
         self.get(url)
     }
 
@@ -75,20 +76,29 @@ impl LunoClient {
     }
 
     /// Get a list of the top 100 bids and asks in the order book for a trading pair.
-    pub fn get_orderbook_top(&self, pair: &str) -> Result<market::Orderbook, reqwest::Error> {
-        let url = self.url_maker.orderbook_top(pair);
+    pub fn get_orderbook_top(
+        &self,
+        pair: market::TradingPair,
+    ) -> Result<market::Orderbook, reqwest::Error> {
+        let url = self.url_maker.orderbook_top(&pair.to_string());
         self.get(url)
     }
 
     /// Get the full list of bids and asks in the order book for a trading pair.
-    pub fn get_orderbook(&self, pair: &str) -> Result<market::Orderbook, reqwest::Error> {
-        let url = self.url_maker.orderbook(pair);
+    pub fn get_orderbook(
+        &self,
+        pair: market::TradingPair,
+    ) -> Result<market::Orderbook, reqwest::Error> {
+        let url = self.url_maker.orderbook(&pair.to_string());
         self.get(url)
     }
 
     /// Get the latest trades for a trading pair (limited to 100).
-    pub fn get_trades(&self, pair: &str) -> Result<market::TradeList, reqwest::Error> {
-        let url = self.url_maker.trades(pair);
+    pub fn get_trades(
+        &self,
+        pair: market::TradingPair,
+    ) -> Result<market::TradeList, reqwest::Error> {
+        let url = self.url_maker.trades(&pair.to_string());
         self.get(url)
     }
 

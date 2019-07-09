@@ -1,4 +1,4 @@
-use luno::LunoClient;
+use luno::{LunoClient, TradingPair};
 
 fn main() {
     let key = String::from("LUNO_API_KEY");
@@ -6,7 +6,7 @@ fn main() {
 
     let client = LunoClient::new(key, secret);
 
-    match client.get_orderbook_top("XBTZAR") {
+    match client.get_orderbook_top(TradingPair::XBTZAR) {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
             println!("{:?}", result);
