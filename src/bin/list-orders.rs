@@ -1,4 +1,4 @@
-use luno::{LunoClient, OrderState};
+use luno::{orders::OrderState, LunoClient};
 
 fn main() {
     let key = String::from("LUNO_API_KEY");

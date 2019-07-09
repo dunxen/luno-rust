@@ -8,7 +8,7 @@ fn main() {
 
     match client
         .limit_order("XBTZAR", "ASK", "VOLUME", "PRICE")
-        .with_post_only(true)
+        .post_only()
         .post()
     {
         Err(e) => eprintln!("{:?}", e),
