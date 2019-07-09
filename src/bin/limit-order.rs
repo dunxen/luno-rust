@@ -1,4 +1,4 @@
-use luno::LunoClient;
+use luno::{LunoClient, OrderType, TradingPair};
 
 fn main() {
     let key = String::from("LUNO_API_KEY");
@@ -7,7 +7,7 @@ fn main() {
     let client = LunoClient::new(key, secret);
 
     match client
-        .limit_order("XBTZAR", "ASK", "VOLUME", "PRICE")
+        .limit_order(TradingPair::XBTZAR, OrderType::ASK, 0.0, 0.0)
         .post_only()
         .post()
     {

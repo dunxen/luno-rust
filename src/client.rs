@@ -172,16 +172,16 @@ impl LunoClient {
     /// Create a new trade order.
     pub fn limit_order(
         &self,
-        pair: &str,
-        r#type: &str,
-        volume: &str,
-        price: &str,
+        pair: market::TradingPair,
+        r#type: orders::OrderType,
+        volume: f64,
+        price: f64,
     ) -> orders::PostLimitOrderBuilder {
         let mut params = HashMap::new();
-        params.insert("pair", pair.to_owned());
-        params.insert("type", r#type.to_owned());
-        params.insert("volume", volume.to_owned());
-        params.insert("price", price.to_owned());
+        params.insert("pair", pair.to_string());
+        params.insert("type", r#type.to_string());
+        params.insert("volume", volume.to_string());
+        params.insert("price", price.to_string());
         orders::PostLimitOrderBuilder {
             luno_client: self,
             url: self.url_maker.post_order(),

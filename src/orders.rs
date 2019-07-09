@@ -1,7 +1,14 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use strum_macros::{Display, EnumString};
 
 use crate::client;
+
+#[derive(EnumString, Display)]
+pub enum OrderType {
+    ASK,
+    BID,
+}
 
 #[derive(Debug, Deserialize)]
 pub struct Order {
