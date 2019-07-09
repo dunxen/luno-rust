@@ -8,5 +8,5 @@ mod credentials;
 mod urls;
 
 pub use client::LunoClient;
-pub use market::TradingPair;
+pub use market::{Currency, TradingPair};
 pub use orders::OrderType;

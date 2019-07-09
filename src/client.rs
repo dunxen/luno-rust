@@ -105,13 +105,13 @@ impl LunoClient {
     /// Create an additional account for the specified currency..
     pub fn create_account(
         &self,
-        currency: &str,
+        currency: market::Currency,
         name: &str,
     ) -> Result<accounts::Account, reqwest::Error> {
         let url = self.url_maker.accounts();
         let mut params = HashMap::new();
-        params.insert("currency", currency);
-        params.insert("name", name);
+        params.insert("currency", currency.to_string());
+        params.insert("name", name.to_string());
 
         self.http
             .post(url)

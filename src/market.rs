@@ -2,6 +2,20 @@ use serde::Deserialize;
 use strum_macros::{Display, EnumString};
 
 #[derive(EnumString, Display)]
+pub enum Currency {
+    EUR,
+    IDR,
+    MYR,
+    NGN,
+    ZAR,
+    ZMW,
+    BTC,
+    XBT,
+    ETH,
+    BCH,
+}
+
+#[derive(EnumString, Display)]
 pub enum TradingPair {
     XBTEUR,
     XBTIDR,
