@@ -15,7 +15,7 @@ Currently implemented calls:
 - `get_transactions(account_id: &str, min_row: u64, max_row: u64)`
 - `get_pending_transactions(account_id: &str)`
 - `list_orders()`
-- `limit_order(pair: market::TradingPair, r#type: orders::OrderType, volume: f64, price: f64)`
+- `limit_order(pair: market::TradingPair, r#type: orders::LimitOrderType, volume: f64, price: f64)`
 
 Example with `get_trades()`:
 

@@ -173,7 +173,7 @@ impl LunoClient {
     pub fn limit_order(
         &self,
         pair: market::TradingPair,
-        r#type: orders::OrderType,
+        r#type: orders::LimitOrderType,
         volume: f64,
         price: f64,
     ) -> orders::PostLimitOrderBuilder {
@@ -185,6 +185,30 @@ impl LunoClient {
         orders::PostLimitOrderBuilder {
             luno_client: self,
             url: self.url_maker.post_order(),
+            params,
+        }
+    }
+
+    /// Create a new market order.
+    /// A market order executes immediately, and either buys as much bitcoin that can be bought for
+    /// as set amount of fiat currency, or sells a set amount of bitcoin for as much fiat as possible.
+    /// NOTE: Please see the fees associated with trades at https://www.luno.com/en/countries
+    pub fn market_order(
+        &self,
+        pair: market::TradingPair,
+        r#type: orders::MarketOrderType,
+        volume: f64,
+    ) -> orders::PostMarketOrderBuilder {
+        let mut params = HashMap::new();
+        params.insert("pair", pair.to_string());
+        params.insert("type", r#type.to_string());
+        match r#type {
+            orders::MarketOrderType::BUY => params.insert("counter_volume", volume.to_string()),
+            orders::MarketOrderType::SELL => params.insert("base_volume", volume.to_string()),
+        };
+        orders::PostMarketOrderBuilder {
+            luno_client: self,
+            url: self.url_maker.market_order(),
             params,
         }
     }

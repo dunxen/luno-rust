@@ -9,4 +9,4 @@ mod urls;
 
 pub use client::LunoClient;
 pub use market::{Currency, TradingPair};
-pub use orders::OrderType;
+pub use orders::{LimitOrderType, MarketOrderType};

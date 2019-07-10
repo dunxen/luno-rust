@@ -87,4 +87,9 @@ impl UrlMaker {
     pub fn post_order(&self) -> reqwest::Url {
         self.build_url("postorder")
     }
+
+    // Build https://api.mybitx.com/api/1/marketorder
+    pub fn market_order(&self) -> reqwest::Url {
+        self.build_url("marketorder")
+    }
 }

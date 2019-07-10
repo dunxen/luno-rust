@@ -5,9 +5,15 @@ use strum_macros::{Display, EnumString};
 use crate::client;
 
 #[derive(EnumString, Display)]
-pub enum OrderType {
+pub enum LimitOrderType {
     ASK,
     BID,
+}
+
+#[derive(EnumString, Display)]
+pub enum MarketOrderType {
+    BUY,
+    SELL,
 }
 
 #[derive(Debug, Deserialize)]
@@ -79,7 +85,7 @@ pub struct LimitOrder {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct PostLimitOrderResponse {
+pub struct PostOrderResponse {
     pub order_id: Option<String>,
     pub error: Option<String>,
 }
@@ -97,12 +103,12 @@ pub struct PostLimitOrderBuilder<'a> {
 
 impl<'a> PostLimitOrderBuilder<'a> {
     pub fn with_base_account(&mut self, id: &'a str) -> &mut PostLimitOrderBuilder<'a> {
-        self.params.insert("counter_account_id", id.to_owned());
+        self.params.insert("base_account_id", id.to_owned());
         self
     }
 
     pub fn with_counter_account(&mut self, id: &'a str) -> &mut PostLimitOrderBuilder<'a> {
-        self.params.insert("base_account_id", id.to_owned());
+        self.params.insert("counter_account_id", id.to_owned());
         self
     }
 
@@ -111,7 +117,39 @@ impl<'a> PostLimitOrderBuilder<'a> {
         self
     }
 
-    pub fn post(&mut self) -> Result<PostLimitOrderResponse, reqwest::Error> {
+    pub fn post(&mut self) -> Result<PostOrderResponse, reqwest::Error> {
+        let url = self.url.clone();
+        self.luno_client
+            .http
+            .post(url)
+            .basic_auth(
+                self.luno_client.credentials.key.to_owned(),
+                Some(self.luno_client.credentials.secret.to_owned()),
+            )
+            .form(&self.params)
+            .send()?
+            .json()
+    }
+}
+
+pub struct PostMarketOrderBuilder<'a> {
+    pub(crate) luno_client: &'a client::LunoClient,
+    pub(crate) url: reqwest::Url,
+    pub(crate) params: HashMap<&'a str, String>,
+}
+
+impl<'a> PostMarketOrderBuilder<'a> {
+    pub fn with_base_account(&mut self, id: &'a str) -> &mut PostMarketOrderBuilder<'a> {
+        self.params.insert("base_account_id", id.to_owned());
+        self
+    }
+
+    pub fn with_counter_account(&mut self, id: &'a str) -> &mut PostMarketOrderBuilder<'a> {
+        self.params.insert("counter_account_id", id.to_owned());
+        self
+    }
+
+    pub fn post(&mut self) -> Result<PostOrderResponse, reqwest::Error> {
         let url = self.url.clone();
         self.luno_client
             .http
