@@ -6,20 +6,21 @@ Please read the license. This software is by no means production ready and use o
 
 Currently implemented calls:
 
-- `get_orderbook_top(pair: &str)`
-- `get_orderbook(pair: &str)`
-- `get_ticker(pair: &str)`
+- `get_orderbook_top(pair: marketTradingPair)`
+- `get_orderbook(pair: market::TradingPair)`
+- `get_ticker(pair: market::TradingPair)`
 - `get_tickers()`
-- `get_trades(pair: &str)`
-- `create_account(currency: &str, name: &str)`
+- `get_trades(pair: market::TradingPair)`
+- `create_account(currency: market::Currency, name: &str)`
 - `get_transactions(account_id: &str, min_row: u64, max_row: u64)`
 - `get_pending_transactions(account_id: &str)`
 - `list_orders()`
+- `limit_order(pair: market::TradingPair, r#type: orders::OrderType, volume: f64, price: f64)`
 
 Example with `get_trades()`:
 
 ```rust
-use luno::LunoClient;
+use luno::{LunoClient, TradingPair};
 
 fn main() {
     let key = String::from("LUNO_API_KEY");
@@ -27,7 +28,7 @@ fn main() {
 
     let client = LunoClient::new(key, secret);
 
-    match client.get_trades("XBTZAR") {
+    match client.get_trades(TradingPair::XBTZAR) {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
             if let Some(trade) = result.trades {
