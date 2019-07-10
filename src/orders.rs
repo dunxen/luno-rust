@@ -90,6 +90,11 @@ pub struct PostOrderResponse {
     pub error: Option<String>,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct StopOrderResponse {
+    pub success: bool,
+}
+
 pub enum OrderState {
     Complete,
     Pending,
