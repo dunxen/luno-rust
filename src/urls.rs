@@ -97,4 +97,10 @@ impl UrlMaker {
     pub fn stop_order(&self) -> reqwest::Url {
         self.build_url("stoporder")
     }
+
+    pub fn orders(&self, order_id: &str) -> reqwest::Url {
+        let mut url = self.build_url("orders");
+        url.path_segments_mut().unwrap().extend(&[order_id]);
+        url
+    }
 }

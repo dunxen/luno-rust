@@ -192,6 +192,10 @@ impl LunoClient {
     /// Create a new market order.
     /// A market order executes immediately, and either buys as much bitcoin that can be bought for
     /// as set amount of fiat currency, or sells a set amount of bitcoin for as much fiat as possible.
+    ///
+    /// Optionally specify a specific counter and base account with `.with_counter_account(id: &str)` and
+    /// `.with_base_account(id: &str)`
+    ///
     /// NOTE: Please see the fees associated with trades at https://www.luno.com/en/countries
     pub fn market_order(
         &self,
@@ -228,5 +232,11 @@ impl LunoClient {
             .form(&params)
             .send()?
             .json()
+    }
+
+    // Get an order by its ID.
+    pub fn get_order(&self, order_id: &str) -> Result<orders::Order, reqwest::Error> {
+        let url = self.url_maker.orders(order_id);
+        self.get(url)
     }
 }
