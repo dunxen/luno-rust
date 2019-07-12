@@ -214,10 +214,7 @@ impl LunoClient {
     }
 
     /// Request to stop an order.
-    pub fn stop_order(
-        &self,
-        order_id: &str,
-    ) -> Result<orders::StopOrderResponse, reqwest::Error> {
+    pub fn stop_order(&self, order_id: &str) -> Result<orders::StopOrderResponse, reqwest::Error> {
         let url = self.url_maker.stop_order();
         let mut params = HashMap::new();
         params.insert("order_id", order_id.to_string());

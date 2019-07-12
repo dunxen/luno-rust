@@ -1,4 +1,4 @@
-use luno::{MarketOrderType, LunoClient, TradingPair};
+use luno::LunoClient;
 
 fn main() {
     let key = String::from("LUNO_API_KEY");
@@ -6,9 +6,7 @@ fn main() {
 
     let client = LunoClient::new(key, secret);
 
-    match client
-        .stop_order("ORDER_ID");
-    {
+    match client.stop_order("ORDER_ID") {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
             println!("{:?}", result);

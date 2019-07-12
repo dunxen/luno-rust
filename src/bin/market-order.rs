@@ -1,4 +1,4 @@
-use luno::{MarketOrderType, LunoClient, TradingPair};
+use luno::{LunoClient, MarketOrderType, TradingPair};
 
 fn main() {
     let key = String::from("LUNO_API_KEY");
