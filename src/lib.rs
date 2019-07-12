@@ -2,6 +2,7 @@ pub mod accounts;
 pub mod client;
 pub mod market;
 pub mod orders;
+pub mod trades;
 pub mod transactions;
 
 mod credentials;

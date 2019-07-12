@@ -103,4 +103,10 @@ impl UrlMaker {
         url.path_segments_mut().unwrap().extend(&[order_id]);
         url
     }
+
+    pub fn list_trades(&self, pair: &str) -> reqwest::Url {
+        let mut url = self.build_url("listtrades");
+        url.query_pairs_mut().append_pair("pair", pair);
+        url
+    }
 }

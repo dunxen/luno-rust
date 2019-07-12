@@ -8,6 +8,7 @@ use crate::accounts;
 use crate::credentials;
 use crate::market;
 use crate::orders;
+use crate::trades;
 use crate::transactions;
 use crate::urls;
 
@@ -234,9 +235,25 @@ impl LunoClient {
             .json()
     }
 
-    // Get an order by its ID.
+    /// Get an order by its ID.
     pub fn get_order(&self, order_id: &str) -> Result<orders::Order, reqwest::Error> {
         let url = self.url_maker.orders(order_id);
         self.get(url)
+    }
+
+    /// Returns a list of your recent trades for a given pair, sorted by oldest first. If before is specified, then the trades are returned sorted by most-recent first.
+    ///
+    /// type in the response indicates the type of order that you placed in order to participate in the trade. Possible types: BID, ASK.
+    ///
+    /// If is_buy in the response is true, then the order which completed the trade (market taker) was a bid order.
+    ///
+    /// Results of this query may lag behind the latest data.
+    pub fn list_own_trades(&self, pair: market::TradingPair) -> trades::ListTradesBuilder {
+        trades::ListTradesBuilder {
+            luno_client: self,
+            url: self.url_maker.list_trades(&pair.to_string()),
+            since: None,
+            limit: None,
+        }
     }
 }
