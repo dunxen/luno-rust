@@ -1,5 +1,7 @@
 # (Unofficial) Luno Rust API Wrapper
 
+[![Build Status](https://travis-ci.org/duncandean/luno-rust.svg?branch=master)](https://travis-ci.org/duncandean/luno-rust)
+
 A work-in-progress.
 
 Please read the license. This software is by no means production ready and use of it is at your own risk!
