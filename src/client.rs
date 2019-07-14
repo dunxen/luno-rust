@@ -156,7 +156,11 @@ impl LunoClient {
     ///
     /// For example:
     /// ```rust
-    /// let pending_orders = list_orders()
+    /// # use luno::LunoClient;
+    /// # let key = String::from("LUNO_API_KEY");
+    /// # let secret = String::from("LUNO_API_SECRET");
+    /// # let client = LunoClient::new(key, secret);
+    /// let pending_orders = client.list_orders()
     ///     .filter_pair("XBTZAR")
     ///     .filter_state(OrderState::Pending)
     ///     .get();

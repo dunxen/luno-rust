@@ -36,7 +36,7 @@ pub struct Order {
 
 pub struct ListOrdersBuilder<'a> {
     pub(crate) state: Option<&'a str>,
-    pub(crate) pair: Option<&'a str>,
+    pub(crate) pair: Option<TradingPair>,
     pub(crate) luno_client: &'a client::LunoClient,
     pub(crate) url: reqwest::Url,
 }
@@ -50,20 +50,18 @@ impl<'a> ListOrdersBuilder<'a> {
         self
     }
 
-    pub fn filter_pair(&mut self, pair: &'a str) -> &mut ListOrdersBuilder<'a> {
+    pub fn filter_pair(&mut self, pair: TradingPair) -> &mut ListOrdersBuilder<'a> {
         self.pair = Some(pair);
         self
     }
 
     pub fn get(&self) -> Result<OrderList, reqwest::Error> {
         let mut url = self.url.clone();
-        if self.state.is_some() {
-            url.query_pairs_mut()
-                .append_pair("state", &self.state.unwrap());
+        if let Some(state) = self.state {
+            url.query_pairs_mut().append_pair("state", state);
         }
-        if self.pair.is_some() {
-            url.query_pairs_mut()
-                .append_pair("pair", &self.pair.unwrap());
+        if let Some(pair) = &self.pair {
+            url.query_pairs_mut().append_pair("pair", &pair.to_string());
         }
         self.luno_client.get(url)
     }
