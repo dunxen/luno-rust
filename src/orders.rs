@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use strum_macros::{Display, EnumString};
 
 use crate::client;
+use crate::TradingPair;
 
 #[derive(EnumString, Display)]
 pub enum LimitOrderType {
@@ -28,7 +29,7 @@ pub struct Order {
     pub limit_price: String,
     pub limit_volume: String,
     pub order_id: String,
-    pub pair: String,
+    pub pair: TradingPair,
     pub state: String,
     pub r#type: String,
 }

@@ -6,11 +6,17 @@ fn main() {
 
     let client = LunoClient::new(key, secret);
 
-    match client.list_own_trades(TradingPair::XBTZAR).get() {
+    match client
+        .list_own_trades(TradingPair::ETHZAR)
+        .since(1_561_939_200)
+        .get()
+    {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
-            if let Some(trade) = result.trades {
-                println!("{:?}", trade);
+            if let Some(trades) = result.trades {
+                for trade in trades {
+                    println!("{:?}", trade);
+                }
             }
         }
     }

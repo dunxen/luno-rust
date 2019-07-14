@@ -1,8 +1,6 @@
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use strum_macros::{Display, EnumString};
+use serde::Deserialize;
 
-use crate::client;
+use crate::{client, TradingPair};
 
 #[derive(Debug, Deserialize)]
 pub struct Trade {
@@ -11,7 +9,7 @@ pub struct Trade {
     pub fee_base: String,
     pub is_buy: bool,
     pub order_id: String,
-    pub pair: String,
+    pub pair: TradingPair,
     pub price: String,
     pub timestamp: u64,
     pub r#type: String,

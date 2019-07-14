@@ -15,7 +15,7 @@ pub enum Currency {
     BCH,
 }
 
-#[derive(EnumString, Display)]
+#[derive(EnumString, Display, Debug, Deserialize)]
 pub enum TradingPair {
     XBTEUR,
     XBTIDR,
