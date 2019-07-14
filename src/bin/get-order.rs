@@ -1,4 +1,4 @@
-use luno::{LunoClient, TradingPair};
+use luno::LunoClient;
 
 fn main() {
     let key = String::from("LUNO_API_KEY");
