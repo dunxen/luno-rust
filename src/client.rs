@@ -6,6 +6,7 @@ use std::string::ToString;
 
 use crate::accounts;
 use crate::credentials;
+use crate::lightning;
 use crate::market;
 use crate::orders;
 use crate::trades;
@@ -248,6 +249,40 @@ impl LunoClient {
             url: self.url_maker.list_trades(&pair.to_string()),
             since: None,
             limit: None,
+        }
+    }
+
+    /// Returns your fees and 30 day trading volume (as of midnight) for a given pair.
+    pub fn get_fee_info(
+        &self,
+        pair: market::TradingPair,
+    ) -> Result<trades::FeeInfo, reqwest::Error> {
+        let url = self.url_maker.fee_info(&pair.to_string());
+        self.get(url)
+    }
+
+    pub fn lightning_send(&self, payment_request: &str) -> lightning::LightningSendBuilder {
+        let mut params = HashMap::new();
+        params.insert("payment_request", payment_request.to_string());
+        lightning::LightningSendBuilder {
+            luno_client: self,
+            url: self.url_maker.lightning_send(),
+            params,
+        }
+    }
+
+    pub fn lightning_receive(
+        &self,
+        amount: &f64,
+        expires_at: u64,
+    ) -> lightning::LightningReceiveBuilder {
+        let mut params = HashMap::new();
+        params.insert("amount", amount.to_string());
+        params.insert("expires_at", expires_at.to_string());
+        lightning::LightningReceiveBuilder {
+            luno_client: self,
+            url: self.url_maker.lightning_receive(),
+            params,
         }
     }
 }

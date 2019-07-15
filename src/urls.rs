@@ -98,15 +98,41 @@ impl UrlMaker {
         self.build_url("stoporder")
     }
 
+    // Build https://api.mybitx.com/api/1/orders/:id
     pub fn orders(&self, order_id: &str) -> reqwest::Url {
         let mut url = self.build_url("orders");
         url.path_segments_mut().unwrap().extend(&[order_id]);
         url
     }
 
+    // Build https://api.mybitx.com/api/1/listtrades?pair=...
     pub fn list_trades(&self, pair: &str) -> reqwest::Url {
         let mut url = self.build_url("listtrades");
         url.query_pairs_mut().append_pair("pair", pair);
+        url
+    }
+
+    // Build https://api.mybitx.com/api/1/fee_info?pair=...
+    pub fn fee_info(&self, pair: &str) -> reqwest::Url {
+        let mut url = self.build_url("fee_info");
+        url.query_pairs_mut().append_pair("pair", pair);
+        url
+    }
+
+    // Build https://api.mybitx.com/api/1/lightning
+    pub fn lightning(&self) -> reqwest::Url {
+        self.build_url("lightning")
+    }
+
+    pub fn lightning_send(&self) -> reqwest::Url {
+        let mut url = self.lightning();
+        url.path_segments_mut().unwrap().extend(&["send"]);
+        url
+    }
+
+    pub fn lightning_receive(&self) -> reqwest::Url {
+        let mut url = self.lightning();
+        url.path_segments_mut().unwrap().extend(&["receive"]);
         url
     }
 }

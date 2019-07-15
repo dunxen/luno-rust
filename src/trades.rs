@@ -52,3 +52,10 @@ impl<'a> ListTradesBuilder<'a> {
         self.luno_client.get(url)
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct FeeInfo {
+    pub maker_fee: String,
+    pub taker_fee: String,
+    pub thirty_day_volume: String,
+}

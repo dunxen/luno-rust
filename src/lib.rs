@@ -1,5 +1,6 @@
 pub mod accounts;
 pub mod client;
+pub mod lightning;
 pub mod market;
 pub mod orders;
 pub mod trades;
