@@ -6,18 +6,26 @@ A work-in-progress.
 
 Please read the license. This software is by no means production ready and use of it is at your own risk!
 
-Currently implemented calls:
+## Installation
 
-- `get_orderbook_top(pair: marketTradingPair)`
-- `get_orderbook(pair: market::TradingPair)`
-- `get_ticker(pair: market::TradingPair)`
-- `get_tickers()`
-- `get_trades(pair: market::TradingPair)`
-- `create_account(currency: market::Currency, name: &str)`
-- `get_transactions(account_id: &str, min_row: u64, max_row: u64)`
-- `get_pending_transactions(account_id: &str)`
-- `list_orders()`
-- `limit_order(pair: market::TradingPair, r#type: orders::LimitOrderType, volume: f64, price: f64)`
+A crate does not yet exist on `crates.io` but you can include this repository directly in your `cargo.toml`:
+
+```toml
+[dependencies]
+luno = { git = "https://github.com/duncandean/luno-rust" }
+```
+
+## Documentation
+
+Documentation can be found [here](https://duncandean.github.io/luno-rust).
+
+## Examples
+
+Examples of calls can be found in the `examples/` directory. Clone this repository and run a specific example, such as `get-trades.rs` with:
+
+```bash
+cargo run --example get-trades
+```
 
 Example with `get_trades()`:
 
@@ -53,4 +61,4 @@ Trade { volume: "0.00577", timestamp: 1561918867525, price: "173590.00", is_buy:
 ...
 ```
 
-At the moment, all implemented calls are synchronous and return a `Result<T, reqwest::Error>`.
+At the moment, all implemented calls are synchronous and return a `Result<T, reqwest::Error>`. We aim to implement async functionality and streams when [_we are async_](https://areweasyncyet.rs/).
