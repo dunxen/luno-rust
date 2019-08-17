@@ -273,7 +273,7 @@ impl LunoClient {
 
     pub fn lightning_receive(
         &self,
-        amount: &f64,
+        amount: f64,
         expires_at: u64,
     ) -> lightning::LightningReceiveBuilder {
         let mut params = HashMap::new();
