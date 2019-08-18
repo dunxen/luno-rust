@@ -3,7 +3,7 @@ pub struct UrlMaker {
 }
 
 impl UrlMaker {
-    /// Convenience constructor for UrlMaker.
+    /// Convenience constructor for `UrlMaker`.
     pub fn new(api_base: String) -> UrlMaker {
         let url = reqwest::Url::parse(&api_base).unwrap();
         UrlMaker { api_base: url }

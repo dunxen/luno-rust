@@ -8,7 +8,7 @@ fn main() {
 
     match client
         .list_orders()
-        .filter_state(OrderState::Complete)
+        .filter_state(OrderState::COMPLETE)
         .get()
     {
         Err(e) => eprintln!("{:?}", e),

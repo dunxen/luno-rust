@@ -1,3 +1,10 @@
+//! A Rust wrapper for the Luno API. 🦀🚀
+//!
+//! In order to use some features of the [Luno API](https://luno.com/api) you need
+//! to have an existing Luno account or you can sign up at [https://luno.com/signup](https://luno.com/signup).
+//! Go to [https://www.luno.com/wallet/security/api_keys](https://www.luno.com/wallet/security/api_keys) to
+//! create a new API key with appropriate permissions.
+
 pub mod accounts;
 pub mod client;
 pub mod lightning;

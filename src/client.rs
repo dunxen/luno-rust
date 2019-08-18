@@ -15,7 +15,7 @@ use crate::urls;
 
 const API_BASE: &str = "https://api.mybitx.com/api/1/";
 
-/// The top level interface for interacting with the remote service.
+/// The top level client for interacting with the Luno API.
 pub struct LunoClient {
     pub(crate) credentials: credentials::Credentials,
     pub(crate) http: Client,

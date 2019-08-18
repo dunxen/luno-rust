@@ -2,6 +2,7 @@ use serde::Deserialize;
 
 use crate::{client, TradingPair};
 
+/// Represents a trade made on the exchange.
 #[derive(Debug, Deserialize)]
 pub struct Trade {
     pub base: String,
@@ -16,11 +17,13 @@ pub struct Trade {
     pub volume: String,
 }
 
+/// Contains a list of trades.
 #[derive(Debug, Deserialize)]
 pub struct TradeList {
     pub trades: Option<Vec<Trade>>,
 }
 
+/// A builder for the `list_trades()` method.
 pub struct ListTradesBuilder<'a> {
     pub(crate) limit: Option<u64>,
     pub(crate) since: Option<u64>,
@@ -53,6 +56,7 @@ impl<'a> ListTradesBuilder<'a> {
     }
 }
 
+/// Represents the fee info associated with recent trades.
 #[derive(Debug, Deserialize)]
 pub struct FeeInfo {
     pub maker_fee: String,

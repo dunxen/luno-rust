@@ -5,37 +5,54 @@ use strum_macros::{Display, EnumString};
 use crate::client;
 use crate::TradingPair;
 
+/// Represents the type of the limit order.
 #[derive(EnumString, Display)]
 pub enum LimitOrderType {
     ASK,
     BID,
 }
 
+/// Represents the type of the market order.
 #[derive(EnumString, Display)]
 pub enum MarketOrderType {
     BUY,
     SELL,
 }
 
+/// Represents an order.
 #[derive(Debug, Deserialize)]
 pub struct Order {
+    /// The base account ID against which this order is made.
     pub base: String,
+    /// The counter account ID against which this order is made.
     pub counter: String,
+    /// The UNIX timestamp of creation of the order.
     pub creation_timestamp: u64,
+    /// The UNIX timestamp of expiration of this order.
     pub expiration_timestamp: u64,
+    /// The UNIX timestamp of completion of this order.
     pub completed_timestamp: u64,
+    /// The base fee debited after the trade principal amount.
     pub fee_base: String,
+    /// The counter fee debited after the trade principal amount.
     pub fee_counter: String,
+    /// The limit price of this order.
     pub limit_price: String,
+    /// The limit volume of this order.
     pub limit_volume: String,
+    /// The ID of the order.
     pub order_id: String,
+    /// The market trading pair.
     pub pair: TradingPair,
-    pub state: String,
+    /// The state of the order.
+    pub state: OrderState,
+    /// The type of the order.
     pub r#type: String,
 }
 
+/// A builder for the `list_orders()` method.
 pub struct ListOrdersBuilder<'a> {
-    pub(crate) state: Option<&'a str>,
+    pub(crate) state: Option<OrderState>,
     pub(crate) pair: Option<TradingPair>,
     pub(crate) luno_client: &'a client::LunoClient,
     pub(crate) url: reqwest::Url,
@@ -43,10 +60,7 @@ pub struct ListOrdersBuilder<'a> {
 
 impl<'a> ListOrdersBuilder<'a> {
     pub fn filter_state(&mut self, state: OrderState) -> &mut ListOrdersBuilder<'a> {
-        match state {
-            OrderState::Complete => self.state = Some("COMPLETE"),
-            OrderState::Pending => self.state = Some("PENDING"),
-        }
+        self.state = Some(state);
         self
     }
 
@@ -57,8 +71,9 @@ impl<'a> ListOrdersBuilder<'a> {
 
     pub fn get(&self) -> Result<OrderList, reqwest::Error> {
         let mut url = self.url.clone();
-        if let Some(state) = self.state {
-            url.query_pairs_mut().append_pair("state", state);
+        if let Some(state) = &self.state {
+            url.query_pairs_mut()
+                .append_pair("state", &state.to_string());
         }
         if let Some(pair) = &self.pair {
             url.query_pairs_mut().append_pair("pair", &pair.to_string());
@@ -67,11 +82,13 @@ impl<'a> ListOrdersBuilder<'a> {
     }
 }
 
+/// Contains a list of orders.
 #[derive(Debug, Deserialize)]
 pub struct OrderList {
     pub orders: Option<Vec<Order>>,
 }
 
+/// Represents a limit order made on the exchange.
 #[derive(Debug, Serialize)]
 pub struct LimitOrder {
     pub pair: String,
@@ -83,22 +100,27 @@ pub struct LimitOrder {
     pub post_only: bool,
 }
 
+/// Contains information regarding the posted order.
 #[derive(Debug, Deserialize)]
 pub struct PostOrderResponse {
     pub order_id: Option<String>,
     pub error: Option<String>,
 }
 
+/// Contains information regarding the stopped order.
 #[derive(Debug, Deserialize)]
 pub struct StopOrderResponse {
     pub success: bool,
 }
 
+/// Represents the state of an order.
+#[derive(EnumString, Display, Debug, Deserialize)]
 pub enum OrderState {
-    Complete,
-    Pending,
+    COMPLETE,
+    PENDING,
 }
 
+/// A builder for the `limit_order()` method.
 pub struct PostLimitOrderBuilder<'a> {
     pub(crate) luno_client: &'a client::LunoClient,
     pub(crate) url: reqwest::Url,
@@ -136,6 +158,7 @@ impl<'a> PostLimitOrderBuilder<'a> {
     }
 }
 
+/// A builder for the `market_order()` method.
 pub struct PostMarketOrderBuilder<'a> {
     pub(crate) luno_client: &'a client::LunoClient,
     pub(crate) url: reqwest::Url,
