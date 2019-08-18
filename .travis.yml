@@ -11,11 +11,6 @@ matrix:
   allow_failures:
     - rust: nightly
 
-addons:
-  apt:
-    packages:
-      - libssl-dev
-
 cache: cargo
 
 before_cache: |
