@@ -9,7 +9,7 @@ Please read the license. This software is by no means production ready and use o
 
 ## Installation
 
-A crate does not yet exist on `crates.io` but you can include this repository directly in your `cargo.toml`:
+In your `Cargo.toml` include:
 
 ```toml
 [dependencies]
