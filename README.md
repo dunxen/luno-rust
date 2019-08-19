@@ -13,7 +13,7 @@ A crate does not yet exist on `crates.io` but you can include this repository di
 
 ```toml
 [dependencies]
-luno = { git = "https://github.com/duncandean/luno-rust" }
+luno = "0.1.0"
 ```
 
 ## Documentation
