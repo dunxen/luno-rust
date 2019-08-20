@@ -8,6 +8,8 @@ license = "MIT"
 documentation = "https://duncandean.github.io/luno-rust"
 homepage = "https://github.com/duncandean/luno-rust"
 repository = "https://github.com/duncandean/luno-rust"
+readme = "README.md"
+keywords = ["luno", "bitx"]
 
 [dependencies]
 reqwest = "0.9.18"
