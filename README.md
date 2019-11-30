@@ -13,7 +13,7 @@ In your `Cargo.toml` include:
 
 ```toml
 [dependencies]
-luno = "0.1.0"
+luno = "0.2.0"
 ```
 
 ## Documentation
@@ -33,13 +33,14 @@ Example with `get_trades()`:
 ```rust
 use luno::{LunoClient, TradingPair};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let key = String::from("LUNO_API_KEY");
     let secret = String::from("LUNO_API_SECRET");
 
     let client = LunoClient::new(key, secret);
 
-    match client.get_trades(TradingPair::XBTZAR) {
+    match client.get_trades(TradingPair::XBTZAR).await {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
             if let Some(trade) = result.trades {
@@ -62,4 +63,4 @@ Trade { volume: "0.00577", timestamp: 1561918867525, price: "173590.00", is_buy:
 ...
 ```
 
-At the moment, all implemented calls are synchronous and return a `Result<T, reqwest::Error>`. We aim to implement async functionality and streams when [_we are async_](https://areweasyncyet.rs/).
+By default, all methods asynchronous and return a `Future` wrapping `Result<T, reqwest::Error>`.
