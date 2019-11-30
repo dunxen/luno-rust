@@ -135,4 +135,10 @@ impl UrlMaker {
         url.path_segments_mut().unwrap().extend(&["receive"]);
         url
     }
+
+    pub fn lightning_invoice_lookup(&self, id: i64) -> reqwest::Url {
+        let mut url = self.lightning_receive();
+        url.path_segments_mut().unwrap().extend(&[&id.to_string()]);
+        url
+    }
 }

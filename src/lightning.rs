@@ -69,6 +69,11 @@ impl<'a> LightningReceiveBuilder<'a> {
         self
     }
 
+    pub fn with_expires_at(&mut self, expires_at: u64) -> &mut LightningReceiveBuilder<'a> {
+        self.params.insert("expires_at", expires_at.to_string());
+        self
+    }
+
     pub fn create(&self) -> Result<LightningReceiveRequest, reqwest::Error> {
         let url = self.url.clone();
         self.luno_client
@@ -82,4 +87,11 @@ impl<'a> LightningReceiveBuilder<'a> {
             .send()?
             .json()
     }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct LightningInvoiceLookupResponse {
+    pub payment_request: String,
+    pub settled_amount: String,
+    pub status: String,
 }

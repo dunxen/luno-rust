@@ -65,19 +65,21 @@ impl LunoClient {
             .json()
     }
 
-    /// Get the current ticker for a given trading pair.
+    /// Returns the latest ticker indicators.
     pub fn get_ticker(&self, pair: market::TradingPair) -> Result<market::Ticker, reqwest::Error> {
         let url = self.url_maker.ticker(&pair.to_string());
         self.get(url)
     }
 
-    /// Get tickers for all available trading pairs.
+    /// Returns the latest ticker indicators from all active Luno exchanges.
     pub fn get_tickers(&self) -> Result<market::TickerList, reqwest::Error> {
         let url = self.url_maker.tickers();
         self.get(url)
     }
 
-    /// Get a list of the top 100 bids and asks in the order book for a trading pair.
+    /// Returns a list of the top 100 bids and asks in the order book.
+    /// Ask orders are sorted by price ascending.
+    /// Bid orders are sorted by price descending. Orders of the same price are aggregated.
     pub fn get_orderbook_top(
         &self,
         pair: market::TradingPair,
@@ -86,7 +88,11 @@ impl LunoClient {
         self.get(url)
     }
 
-    /// Get the full list of bids and asks in the order book for a trading pair.
+    /// Returns a list of all bids and asks in the order book.
+    /// Ask orders are sorted by price ascending. Bid orders are sorted by price descending.
+    /// Multiple orders at the same price are not aggregated.
+    ///
+    /// Warning: This may return a large amount of data. Generally you should rather use `get_orderbook_top` or the Streaming API.
     pub fn get_orderbook(
         &self,
         pair: market::TradingPair,
@@ -95,7 +101,8 @@ impl LunoClient {
         self.get(url)
     }
 
-    /// Get the latest trades for a trading pair (limited to 100).
+    /// Returns a list of the most recent trades that happened in the last 24h.
+    /// At most 100 results are returned per call.
     pub fn get_trades(
         &self,
         pair: market::TradingPair,
@@ -104,7 +111,9 @@ impl LunoClient {
         self.get(url)
     }
 
-    /// Create an additional account for the specified currency..
+    /// This request creates an Account for the specified currency.
+    /// Please note that the balances for the Account will be displayed based on the asset value,
+    /// which is the currency the Account is based on.
     pub fn create_account(
         &self,
         currency: market::Currency,
@@ -126,12 +135,19 @@ impl LunoClient {
             .json()
     }
 
-    /// Get a list of all accounts and their respective balances.
+    /// The list of all Accounts and their respective balances for the requesting user.
     pub fn get_balances(&self) -> Result<accounts::BalanceList, reqwest::Error> {
         let url = self.url_maker.balance();
         self.get(url)
     }
 
+    /// Return a list of transaction entries from an account.
+    ///
+    /// Transaction entry rows are numbered sequentially starting from 1, where 1 is the oldest entry.
+    /// The range of rows to return are specified with the `min_row` (inclusive) and `max_row` (exclusive) parameters.
+    /// At most 1000 rows can be requested per call.
+    /// If min_row or max_row is non-positive, the range wraps around the most recent row.
+    /// For example, to fetch the 100 most recent rows, use `min_row=-100` and `max_row=0`.
     pub fn get_transactions(
         &self,
         account_id: &str,
@@ -142,6 +158,9 @@ impl LunoClient {
         self.get(url)
     }
 
+    /// Return a list of all transactions that have not completed for the Account.
+    ///
+    /// Pending transactions are not numbered, and may be reordered, deleted or updated at any time.
     pub fn get_pending_transactions(
         &self,
         account_id: &str,
@@ -154,8 +173,6 @@ impl LunoClient {
     /// Note that `list_orders()` returns a `ListOrdersBuilder`
     /// that allows you chain pair and state filters onto your
     /// request.
-    ///
-    /// ```
     pub fn list_orders(&self) -> orders::ListOrdersBuilder {
         orders::ListOrdersBuilder {
             luno_client: self,
@@ -166,6 +183,12 @@ impl LunoClient {
     }
 
     /// Create a new trade order.
+    ///
+    /// Warning! Orders cannot be reversed once they have executed.
+    /// Please ensure your program has been thoroughly tested before submitting orders.
+    ///
+    /// If no `base_account_id` or `counter_account_id` are specified, your default base currency or counter currency account will be used.
+    /// You can find your account IDs by calling `get_balances()`.
     pub fn limit_order(
         &self,
         pair: market::TradingPair,
@@ -186,13 +209,15 @@ impl LunoClient {
     }
 
     /// Create a new market order.
-    /// A market order executes immediately, and either buys as much bitcoin that can be bought for
-    /// as set amount of fiat currency, or sells a set amount of bitcoin for as much fiat as possible.
     ///
-    /// Optionally specify a specific counter and base account with `.with_counter_account(id: &str)` and
-    /// `.with_base_account(id: &str)`
+    /// A market order executes immediately, and either buys as much cryptocurrency that can be bought for
+    /// a set amount of fiat currency, or sells a set amount of cryptocurrency for as much fiat as possible.
     ///
-    /// NOTE: Please see the fees associated with trades at https://www.luno.com/en/countries
+    /// Warning! Orders cannot be reversed once they have executed.
+    /// Please ensure your program has been thoroughly tested before submitting orders.
+    ///
+    /// If no base_account_id or counter_account_id are specified, your default base currency or counter currency account will be used.
+    /// You can find your account IDs by calling the `get_balances()`.
     pub fn market_order(
         &self,
         pair: market::TradingPair,
@@ -236,11 +261,11 @@ impl LunoClient {
         self.get(url)
     }
 
-    /// Returns a list of your recent trades for a given pair, sorted by oldest first. If before is specified, then the trades are returned sorted by most-recent first.
+    /// Returns a list of your recent trades for a given pair, sorted by oldest first. If `before` is specified, then the trades are returned sorted by most recent first.
     ///
-    /// type in the response indicates the type of order that you placed in order to participate in the trade. Possible types: BID, ASK.
+    /// `type` in the response indicates the type of order that you placed in order to participate in the trade. Possible types: `BID`, `ASK`.
     ///
-    /// If is_buy in the response is true, then the order which completed the trade (market taker) was a bid order.
+    /// If `is_buy` in the response is true, then the order which completed the trade (market taker) was a bid order.
     ///
     /// Results of this query may lag behind the latest data.
     pub fn list_own_trades(&self, pair: market::TradingPair) -> trades::ListTradesBuilder {
@@ -252,7 +277,8 @@ impl LunoClient {
         }
     }
 
-    /// Returns your fees and 30 day trading volume (as of midnight) for a given pair.
+    /// Returns the fees and 30 day trading volume (as of midnight) for a given currency pair.
+    /// For complete details, please see [Fees & Features](https://www.luno.com/en/countries).
     pub fn get_fee_info(
         &self,
         pair: market::TradingPair,
@@ -261,6 +287,13 @@ impl LunoClient {
         self.get(url)
     }
 
+    /// Alpha warning! The Lightning API is still in Alpha stage.
+    /// The risks are limited api availability and channel capacity.
+    ///
+    /// Send Bitcoin over the lightning network from your Bitcoin wallet.
+    /// Warning! Cryptocurrency transactions are irreversible.
+    ///
+    /// Please ensure your program has been thoroughly tested before using this call.
     pub fn lightning_send(&self, payment_request: &str) -> lightning::LightningSendBuilder {
         let mut params = HashMap::new();
         params.insert("payment_request", payment_request.to_string());
@@ -271,18 +304,29 @@ impl LunoClient {
         }
     }
 
-    pub fn lightning_receive(
-        &self,
-        amount: f64,
-        expires_at: u64,
-    ) -> lightning::LightningReceiveBuilder {
+    /// Alpha warning! The Lightning API is still in Alpha stage.
+    /// The risks are limited API availability and channel capacity.
+    ///
+    /// Create a lightning invoice which can be used to receive BTC payments over the lightning network.
+    pub fn lightning_receive(&self, amount: f64) -> lightning::LightningReceiveBuilder {
         let mut params = HashMap::new();
         params.insert("amount", amount.to_string());
-        params.insert("expires_at", expires_at.to_string());
         lightning::LightningReceiveBuilder {
             luno_client: self,
             url: self.url_maker.lightning_receive(),
             params,
         }
+    }
+
+    /// Alpha warning! The Lightning API is still in Alpha stage.
+    /// The risks are limited API availability and channel capacity.
+    ///
+    /// Lookup the status of a lightning receive invoice.
+    pub fn lookup_lightning_invoice(
+        &self,
+        id: i64,
+    ) -> Result<lightning::LightningInvoiceLookupResponse, reqwest::Error> {
+        let url = self.url_maker.lightning_invoice_lookup(id);
+        self.get(url)
     }
 }
