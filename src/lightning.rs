@@ -37,7 +37,7 @@ impl<'a> LightningSendBuilder<'a> {
         self
     }
 
-    pub fn send(&self) -> Result<LightningWithdrawal, reqwest::Error> {
+    pub async fn send(&self) -> Result<LightningWithdrawal, reqwest::Error> {
         let url = self.url.clone();
         self.luno_client
             .http
@@ -47,8 +47,10 @@ impl<'a> LightningSendBuilder<'a> {
                 Some(self.luno_client.credentials.secret.to_owned()),
             )
             .form(&self.params)
-            .send()?
+            .send()
+            .await?
             .json()
+            .await
     }
 }
 
@@ -74,7 +76,7 @@ impl<'a> LightningReceiveBuilder<'a> {
         self
     }
 
-    pub fn create(&self) -> Result<LightningReceiveRequest, reqwest::Error> {
+    pub async fn create(&self) -> Result<LightningReceiveRequest, reqwest::Error> {
         let url = self.url.clone();
         self.luno_client
             .http
@@ -84,8 +86,10 @@ impl<'a> LightningReceiveBuilder<'a> {
                 Some(self.luno_client.credentials.secret.to_owned()),
             )
             .form(&self.params)
-            .send()?
+            .send()
+            .await?
             .json()
+            .await
     }
 }
 

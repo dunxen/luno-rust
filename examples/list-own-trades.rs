@@ -1,6 +1,7 @@
 use luno::{LunoClient, TradingPair};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let key = String::from("LUNO_API_KEY");
     let secret = String::from("LUNO_API_SECRET");
 
@@ -10,6 +11,7 @@ fn main() {
         .list_own_trades(TradingPair::ETHZAR)
         .since(1_561_939_200)
         .get()
+        .await
     {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {

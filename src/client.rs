@@ -1,8 +1,9 @@
+use std::collections::HashMap;
+use std::future::Future;
+use std::string::ToString;
+
 use reqwest::Client;
 use serde::de::DeserializeOwned;
-use serde::Serialize;
-use std::collections::HashMap;
-use std::string::ToString;
 
 use crate::accounts;
 use crate::credentials;
@@ -35,7 +36,7 @@ impl LunoClient {
         }
     }
 
-    pub(crate) fn get<T>(&self, url: reqwest::Url) -> Result<T, reqwest::Error>
+    pub(crate) async fn get<T>(&self, url: reqwest::Url) -> Result<T, reqwest::Error>
     where
         T: DeserializeOwned,
     {
@@ -45,34 +46,25 @@ impl LunoClient {
                 self.credentials.key.to_owned(),
                 Some(self.credentials.secret.to_owned()),
             )
-            .send()?
-            .json()
-    }
-
-    #[allow(dead_code)]
-    pub(crate) fn post_json<T>(&self, url: reqwest::Url, entity: T) -> Result<T, reqwest::Error>
-    where
-        T: Serialize + DeserializeOwned,
-    {
-        self.http
-            .post(url)
-            .basic_auth(
-                self.credentials.key.to_owned(),
-                Some(self.credentials.secret.to_owned()),
-            )
-            .json(&entity)
-            .send()?
-            .json()
+            .send()
+            .await?
+            .json::<T>()
+            .await
     }
 
     /// Returns the latest ticker indicators.
-    pub fn get_ticker(&self, pair: market::TradingPair) -> Result<market::Ticker, reqwest::Error> {
+    pub fn get_ticker(
+        &self,
+        pair: market::TradingPair,
+    ) -> impl Future<Output = Result<market::Ticker, reqwest::Error>> + '_ {
         let url = self.url_maker.ticker(&pair.to_string());
         self.get(url)
     }
 
     /// Returns the latest ticker indicators from all active Luno exchanges.
-    pub fn get_tickers(&self) -> Result<market::TickerList, reqwest::Error> {
+    pub fn get_tickers(
+        &self,
+    ) -> impl Future<Output = Result<market::TickerList, reqwest::Error>> + '_ {
         let url = self.url_maker.tickers();
         self.get(url)
     }
@@ -83,7 +75,7 @@ impl LunoClient {
     pub fn get_orderbook_top(
         &self,
         pair: market::TradingPair,
-    ) -> Result<market::Orderbook, reqwest::Error> {
+    ) -> impl Future<Output = Result<market::Orderbook, reqwest::Error>> + '_ {
         let url = self.url_maker.orderbook_top(&pair.to_string());
         self.get(url)
     }
@@ -96,7 +88,7 @@ impl LunoClient {
     pub fn get_orderbook(
         &self,
         pair: market::TradingPair,
-    ) -> Result<market::Orderbook, reqwest::Error> {
+    ) -> impl Future<Output = Result<market::Orderbook, reqwest::Error>> + '_ {
         let url = self.url_maker.orderbook(&pair.to_string());
         self.get(url)
     }
@@ -106,7 +98,7 @@ impl LunoClient {
     pub fn get_trades(
         &self,
         pair: market::TradingPair,
-    ) -> Result<market::TradeList, reqwest::Error> {
+    ) -> impl Future<Output = Result<market::TradeList, reqwest::Error>> + '_ {
         let url = self.url_maker.trades(&pair.to_string());
         self.get(url)
     }
@@ -114,7 +106,7 @@ impl LunoClient {
     /// This request creates an Account for the specified currency.
     /// Please note that the balances for the Account will be displayed based on the asset value,
     /// which is the currency the Account is based on.
-    pub fn create_account(
+    pub async fn create_account(
         &self,
         currency: market::Currency,
         name: &str,
@@ -131,12 +123,16 @@ impl LunoClient {
                 Some(self.credentials.secret.to_owned()),
             )
             .form(&params)
-            .send()?
-            .json()
+            .send()
+            .await?
+            .json::<accounts::Account>()
+            .await
     }
 
     /// The list of all Accounts and their respective balances for the requesting user.
-    pub fn get_balances(&self) -> Result<accounts::BalanceList, reqwest::Error> {
+    pub fn get_balances(
+        &self,
+    ) -> impl Future<Output = Result<accounts::BalanceList, reqwest::Error>> + '_ {
         let url = self.url_maker.balance();
         self.get(url)
     }
@@ -153,7 +149,7 @@ impl LunoClient {
         account_id: &str,
         min_row: u64,
         max_row: u64,
-    ) -> Result<transactions::TransactionList, reqwest::Error> {
+    ) -> impl Future<Output = Result<transactions::TransactionList, reqwest::Error>> + '_ {
         let url = self.url_maker.transactions(account_id, min_row, max_row);
         self.get(url)
     }
@@ -164,7 +160,8 @@ impl LunoClient {
     pub fn get_pending_transactions(
         &self,
         account_id: &str,
-    ) -> Result<transactions::PendingTransactionList, reqwest::Error> {
+    ) -> impl Future<Output = Result<transactions::PendingTransactionList, reqwest::Error>> + '_
+    {
         let url = self.url_maker.pending_transactions(account_id);
         self.get(url)
     }
@@ -239,7 +236,10 @@ impl LunoClient {
     }
 
     /// Request to stop an order.
-    pub fn stop_order(&self, order_id: &str) -> Result<orders::StopOrderResponse, reqwest::Error> {
+    pub async fn stop_order(
+        &self,
+        order_id: &str,
+    ) -> Result<orders::StopOrderResponse, reqwest::Error> {
         let url = self.url_maker.stop_order();
         let mut params = HashMap::new();
         params.insert("order_id", order_id.to_string());
@@ -251,12 +251,17 @@ impl LunoClient {
                 Some(self.credentials.secret.to_owned()),
             )
             .form(&params)
-            .send()?
-            .json()
+            .send()
+            .await?
+            .json::<orders::StopOrderResponse>()
+            .await
     }
 
     /// Get an order by its ID.
-    pub fn get_order(&self, order_id: &str) -> Result<orders::Order, reqwest::Error> {
+    pub fn get_order(
+        &self,
+        order_id: &str,
+    ) -> impl Future<Output = Result<orders::Order, reqwest::Error>> + '_ {
         let url = self.url_maker.orders(order_id);
         self.get(url)
     }
@@ -282,7 +287,7 @@ impl LunoClient {
     pub fn get_fee_info(
         &self,
         pair: market::TradingPair,
-    ) -> Result<trades::FeeInfo, reqwest::Error> {
+    ) -> impl Future<Output = Result<trades::FeeInfo, reqwest::Error>> + '_ {
         let url = self.url_maker.fee_info(&pair.to_string());
         self.get(url)
     }
@@ -325,7 +330,8 @@ impl LunoClient {
     pub fn lookup_lightning_invoice(
         &self,
         id: i64,
-    ) -> Result<lightning::LightningInvoiceLookupResponse, reqwest::Error> {
+    ) -> impl Future<Output = Result<lightning::LightningInvoiceLookupResponse, reqwest::Error>> + '_
+    {
         let url = self.url_maker.lightning_invoice_lookup(id);
         self.get(url)
     }

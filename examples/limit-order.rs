@@ -1,6 +1,7 @@
 use luno::{LimitOrderType, LunoClient, TradingPair};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let key = String::from("LUNO_API_KEY");
     let secret = String::from("LUNO_API_SECRET");
 
@@ -10,6 +11,7 @@ fn main() {
         .limit_order(TradingPair::XBTZAR, LimitOrderType::ASK, 0.0, 0.0)
         .post_only()
         .post()
+        .await
     {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {

@@ -1,6 +1,7 @@
 use luno::{Currency, LunoClient};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let key = String::from("LUNO_API_KEY");
     let secret = String::from("LUNO_API_SECRET");
 
@@ -11,6 +12,7 @@ fn main() {
         .with_currency(Currency::XBT)
         .with_description("hello")
         .create()
+        .await
     {
         Err(e) => eprintln!("{:?}", e),
         Ok(invoice) => {

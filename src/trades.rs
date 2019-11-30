@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use std::future::Future;
 
 use crate::{client, TradingPair};
 
@@ -42,7 +43,7 @@ impl<'a> ListTradesBuilder<'a> {
         self
     }
 
-    pub fn get(&self) -> Result<TradeList, reqwest::Error> {
+    pub fn get(&self) -> impl Future<Output = Result<TradeList, reqwest::Error>> + '_ {
         let mut url = self.url.clone();
         if self.since.is_some() {
             url.query_pairs_mut()

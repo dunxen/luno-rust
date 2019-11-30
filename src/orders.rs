@@ -1,5 +1,7 @@
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::future::Future;
+
+use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 
 use crate::client;
@@ -69,7 +71,7 @@ impl<'a> ListOrdersBuilder<'a> {
         self
     }
 
-    pub fn get(&self) -> Result<OrderList, reqwest::Error> {
+    pub fn get(&self) -> impl Future<Output = Result<OrderList, reqwest::Error>> + '_ {
         let mut url = self.url.clone();
         if let Some(state) = &self.state {
             url.query_pairs_mut()
@@ -143,8 +145,9 @@ impl<'a> PostLimitOrderBuilder<'a> {
         self
     }
 
-    pub fn post(&mut self) -> Result<PostOrderResponse, reqwest::Error> {
+    pub async fn post(&mut self) -> Result<PostOrderResponse, reqwest::Error> {
         let url = self.url.clone();
+
         self.luno_client
             .http
             .post(url)
@@ -153,8 +156,10 @@ impl<'a> PostLimitOrderBuilder<'a> {
                 Some(self.luno_client.credentials.secret.to_owned()),
             )
             .form(&self.params)
-            .send()?
+            .send()
+            .await?
             .json()
+            .await
     }
 }
 
@@ -176,7 +181,7 @@ impl<'a> PostMarketOrderBuilder<'a> {
         self
     }
 
-    pub fn post(&mut self) -> Result<PostOrderResponse, reqwest::Error> {
+    pub async fn post(&mut self) -> Result<PostOrderResponse, reqwest::Error> {
         let url = self.url.clone();
         self.luno_client
             .http
@@ -186,7 +191,9 @@ impl<'a> PostMarketOrderBuilder<'a> {
                 Some(self.luno_client.credentials.secret.to_owned()),
             )
             .form(&self.params)
-            .send()?
+            .send()
+            .await?
             .json()
+            .await
     }
 }

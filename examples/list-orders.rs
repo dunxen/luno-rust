@@ -1,6 +1,7 @@
 use luno::{orders::OrderState, LunoClient};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let key = String::from("LUNO_API_KEY");
     let secret = String::from("LUNO_API_SECRET");
 
@@ -10,6 +11,7 @@ fn main() {
         .list_orders()
         .filter_state(OrderState::COMPLETE)
         .get()
+        .await
     {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
