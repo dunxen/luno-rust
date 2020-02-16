@@ -12,10 +12,10 @@ readme = "README.md"
 keywords = ["luno", "bitx"]
 
 [dependencies]
-reqwest = { version = "0.10.0-alpha.2", features = ["json"] }
-futures = "0.3"
-tokio = "0.2.0-alpha.6"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.41"
+reqwest = { version = "0.10.1", features = ["json"] }
+futures = "0.3.4"
+tokio = {  version = "0.2.11", features = ["macros"] }
+serde = { version = "1.0.104", features = ["derive"] }
+serde_json = "1.0.48"
 strum = "0.17.1"
 strum_macros = "0.17.1"
