@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["FeeInfo","Represents the fee info associated with recent trades."],["ListTradesBuilder","A builder for the `list_trades()` method."],["Trade","Represents a trade made on the exchange."],["TradeList","Contains a list of trades."]]});

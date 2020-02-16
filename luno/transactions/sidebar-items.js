@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["PendingTransactionList","Contains a list of pending transactions."],["Transaction","Represents a transaction on an account."],["TransactionList","Contains a list of transactions."]]});
