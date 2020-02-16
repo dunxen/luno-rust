@@ -13,7 +13,7 @@ In your `Cargo.toml` include:
 
 ```toml
 [dependencies]
-luno = "0.2.0"
+luno = "0.2.1"
 ```
 
 ## Documentation
