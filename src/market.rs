@@ -13,6 +13,8 @@ pub enum Currency {
     XBT,
     ETH,
     BCH,
+    XRP,
+    LTC,
 }
 
 #[derive(EnumString, Display, Debug, Deserialize)]
@@ -21,10 +23,20 @@ pub enum TradingPair {
     XBTIDR,
     XBTMYR,
     XBTNGN,
+    XBTSGD,
+    XBTUGX,
     XBTZAR,
     XBTZMW,
-    ETHBTC,
+    BCHXBT,
+    ETHMYR,
+    ETHNGN,
     ETHZAR,
+    ETHXBT,
+    XRPZAR,
+    XRPMYR,
+    XRPXBT,
+    LTCZAR,
+    LTCXBT,
 }
 
 #[derive(Debug, Deserialize)]
