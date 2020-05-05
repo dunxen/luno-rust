@@ -2,4 +2,5 @@
 # Cargo.lock ignored as this crate is a library.
 Cargo.lock
 **/*.rs.bk
-.idea/workspace.xml
+.idea/
+.vscode/
