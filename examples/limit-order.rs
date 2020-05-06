@@ -1,3 +1,5 @@
+use rust_decimal_macros::*;
+
 use luno::{LimitOrderType, LunoClient, TradingPair};
 
 #[tokio::main]
@@ -8,7 +10,12 @@ async fn main() {
     let client = LunoClient::new(key, secret);
 
     match client
-        .limit_order(TradingPair::XBTZAR, LimitOrderType::ASK, 0.0, 0.0)
+        .limit_order(
+            TradingPair::XBTZAR,
+            LimitOrderType::ASK,
+            dec!(0.0),
+            dec!(0.0),
+        )
         .post_only()
         .post()
         .await

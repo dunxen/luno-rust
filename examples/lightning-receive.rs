@@ -1,3 +1,5 @@
+use rust_decimal_macros::*;
+
 use luno::{Currency, LunoClient};
 
 #[tokio::main]
@@ -8,7 +10,7 @@ async fn main() {
     let client = LunoClient::new(key, secret);
 
     match client
-        .lightning_receive(0.0001)
+        .lightning_receive(dec!(0.0001))
         .with_currency(Currency::XBT)
         .with_description("hello")
         .create()

@@ -3,6 +3,7 @@ use std::future::Future;
 use std::string::ToString;
 
 use reqwest::Client;
+use rust_decimal::Decimal;
 use serde::de::DeserializeOwned;
 
 use crate::accounts;
@@ -190,8 +191,8 @@ impl LunoClient {
         &self,
         pair: market::TradingPair,
         r#type: orders::LimitOrderType,
-        volume: f64,
-        price: f64,
+        volume: Decimal,
+        price: Decimal,
     ) -> orders::PostLimitOrderBuilder {
         let mut params = HashMap::new();
         params.insert("pair", pair.to_string());
@@ -219,7 +220,7 @@ impl LunoClient {
         &self,
         pair: market::TradingPair,
         r#type: orders::MarketOrderType,
-        volume: f64,
+        volume: Decimal,
     ) -> orders::PostMarketOrderBuilder {
         let mut params = HashMap::new();
         params.insert("pair", pair.to_string());
@@ -313,7 +314,7 @@ impl LunoClient {
     /// The risks are limited API availability and channel capacity.
     ///
     /// Create a lightning invoice which can be used to receive BTC payments over the lightning network.
-    pub fn lightning_receive(&self, amount: f64) -> lightning::LightningReceiveBuilder {
+    pub fn lightning_receive(&self, amount: Decimal) -> lightning::LightningReceiveBuilder {
         let mut params = HashMap::new();
         params.insert("amount", amount.to_string());
         lightning::LightningReceiveBuilder {
