@@ -1,3 +1,4 @@
+use rust_decimal::Decimal;
 use serde::Deserialize;
 
 /// Represents a transaction on an account.
@@ -5,10 +6,10 @@ use serde::Deserialize;
 pub struct Transaction {
     pub row_index: Option<u64>,
     pub timestamp: u64,
-    pub balance: f64,
-    pub available: f64,
-    pub balance_delta: f64,
-    pub available_delta: f64,
+    pub balance: Decimal,
+    pub available: Decimal,
+    pub balance_delta: Decimal,
+    pub available_delta: Decimal,
     pub currency: String,
     pub description: String,
 }

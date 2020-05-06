@@ -1,3 +1,5 @@
+use rust_decimal_macros::*;
+
 use luno::{LunoClient, MarketOrderType, TradingPair};
 
 #[tokio::main]
@@ -8,7 +10,7 @@ async fn main() {
     let client = LunoClient::new(key, secret);
 
     match client
-        .market_order(TradingPair::XBTZAR, MarketOrderType::BUY, 0.0)
+        .market_order(TradingPair::XBTZAR, MarketOrderType::BUY, dec!(0.0))
         .post()
         .await
     {
