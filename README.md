@@ -28,7 +28,7 @@ Examples of calls can be found in the `examples/` directory. Clone this reposito
 cargo run --example get-trades
 ```
 
-Example with `get_trades()`:
+Example with `list_trades()`:
 
 ```rust
 use luno::{LunoClient, TradingPair};
@@ -40,7 +40,7 @@ async fn main() {
 
     let client = LunoClient::new(key, secret);
 
-    match client.get_trades(TradingPair::XBTZAR).await {
+    match client.list_trades(TradingPair::XBTZAR).await {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
             if let Some(trade) = result.trades {

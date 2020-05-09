@@ -45,13 +45,13 @@ impl<'a> ListTradesBuilder<'a> {
 
     pub fn get(&self) -> impl Future<Output = Result<TradeList, reqwest::Error>> + '_ {
         let mut url = self.url.clone();
-        if self.since.is_some() {
+        if let Some(since) = self.since {
             url.query_pairs_mut()
-                .append_pair("since", &self.since.unwrap().to_string());
+                .append_pair("since", &since.to_string());
         }
-        if self.limit.is_some() {
+        if let Some(limit) = self.limit {
             url.query_pairs_mut()
-                .append_pair("limit", &self.limit.unwrap().to_string());
+                .append_pair("limit", &limit.to_string());
         }
         self.luno_client.get(url)
     }

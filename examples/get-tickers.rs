@@ -7,7 +7,7 @@ async fn main() {
 
     let client = LunoClient::new(key, secret);
 
-    match client.get_tickers().await {
+    match client.list_tickers().await {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
             if let Some(ticker) = result.tickers {

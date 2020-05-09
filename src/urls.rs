@@ -52,13 +52,21 @@ impl UrlMaker {
         self.build_url("accounts")
     }
 
+    // Build https://api.mybitx.com/api/1/accounts/{id}/{name}
+    pub fn account_name(&self, account_id: &str, name: &str) -> reqwest::Url {
+        let mut url = self.accounts();
+        url.path_segments_mut().unwrap().extend(&[account_id]);
+        url.query_pairs_mut().append_pair("name", name);
+        url
+    }
+
     // Build https://api.mybitx.com/api/1/balance
     pub fn balance(&self) -> reqwest::Url {
         self.build_url("balance")
     }
 
-    // Build https://api.mybitx.com/api/1/account/:id/transactions
-    pub fn transactions(&self, account_id: &str, min_row: u64, max_row: u64) -> reqwest::Url {
+    // Build https://api.mybitx.com/api/1/account/{id}/transactions
+    pub fn transactions(&self, account_id: &str, min_row: i64, max_row: i64) -> reqwest::Url {
         let mut url = self.accounts();
         url.path_segments_mut()
             .unwrap()
@@ -69,7 +77,7 @@ impl UrlMaker {
         url
     }
 
-    // Build https://api.mybitx.com/api/1/account/:id/pending
+    // Build https://api.mybitx.com/api/1/account/{id}/pending
     pub fn pending_transactions(&self, account_id: &str) -> reqwest::Url {
         let mut url = self.accounts();
         url.path_segments_mut()
@@ -98,7 +106,7 @@ impl UrlMaker {
         self.build_url("stoporder")
     }
 
-    // Build https://api.mybitx.com/api/1/orders/:id
+    // Build https://api.mybitx.com/api/1/orders/{id}
     pub fn orders(&self, order_id: &str) -> reqwest::Url {
         let mut url = self.build_url("orders");
         url.path_segments_mut().unwrap().extend(&[order_id]);

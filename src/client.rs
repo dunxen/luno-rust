@@ -6,14 +6,7 @@ use reqwest::Client;
 use rust_decimal::Decimal;
 use serde::de::DeserializeOwned;
 
-use crate::accounts;
-use crate::credentials;
-use crate::lightning;
-use crate::market;
-use crate::orders;
-use crate::trades;
-use crate::transactions;
-use crate::urls;
+use crate::{accounts, credentials, lightning, market, orders, trades, transactions, urls};
 
 const API_BASE: &str = "https://api.mybitx.com/api/1/";
 
@@ -53,6 +46,22 @@ impl LunoClient {
             .await
     }
 
+    pub(crate) async fn put<T>(&self, url: reqwest::Url) -> Result<T, reqwest::Error>
+    where
+        T: DeserializeOwned,
+    {
+        self.http
+            .put(url)
+            .basic_auth(
+                self.credentials.key.to_owned(),
+                Some(self.credentials.secret.to_owned()),
+            )
+            .send()
+            .await?
+            .json::<T>()
+            .await
+    }
+
     /// Returns the latest ticker indicators.
     pub fn get_ticker(
         &self,
@@ -63,7 +72,7 @@ impl LunoClient {
     }
 
     /// Returns the latest ticker indicators from all active Luno exchanges.
-    pub fn get_tickers(
+    pub fn list_tickers(
         &self,
     ) -> impl Future<Output = Result<market::TickerList, reqwest::Error>> + '_ {
         let url = self.url_maker.tickers();
@@ -96,7 +105,7 @@ impl LunoClient {
 
     /// Returns a list of the most recent trades that happened in the last 24h.
     /// At most 100 results are returned per call.
-    pub fn get_trades(
+    pub fn list_trades(
         &self,
         pair: market::TradingPair,
     ) -> impl Future<Output = Result<market::TradeList, reqwest::Error>> + '_ {
@@ -104,9 +113,11 @@ impl LunoClient {
         self.get(url)
     }
 
-    /// This request creates an Account for the specified currency.
-    /// Please note that the balances for the Account will be displayed based on the asset value,
-    /// which is the currency the Account is based on.
+    /// This request creates an account for the specified currency.
+    /// Please note that the balances for the Account will be displayed based on the `asset` value,
+    /// which is the currency the account is based on.
+    ///
+    /// Permissions required: `Perm_W_Addresses`.
     pub async fn create_account(
         &self,
         currency: market::Currency,
@@ -130,8 +141,23 @@ impl LunoClient {
             .await
     }
 
-    /// The list of all Accounts and their respective balances for the requesting user.
-    pub fn get_balances(
+    /// Update the name of an account with a given ID,
+    ///
+    /// `Perm_W_Addresses`
+    pub fn update_account_name(
+        &self,
+        account_id: &str,
+        name: &str,
+    ) -> impl Future<Output = Result<accounts::UpdateAccountNameResponse, reqwest::Error>> + '_
+    {
+        let url = self.url_maker.account_name(account_id, name);
+        self.put(url)
+    }
+
+    /// The list of all accounts and their respective balances for the requesting user.
+    ///
+    /// Permissions required: `Perm_R_Balance`.
+    pub fn list_balances(
         &self,
     ) -> impl Future<Output = Result<accounts::BalanceList, reqwest::Error>> + '_ {
         let url = self.url_maker.balance();
@@ -143,22 +169,27 @@ impl LunoClient {
     /// Transaction entry rows are numbered sequentially starting from 1, where 1 is the oldest entry.
     /// The range of rows to return are specified with the `min_row` (inclusive) and `max_row` (exclusive) parameters.
     /// At most 1000 rows can be requested per call.
-    /// If min_row or max_row is non-positive, the range wraps around the most recent row.
+    ///
+    /// If `min_row` or `max_row` is non-positive, the range wraps around the most recent row.
     /// For example, to fetch the 100 most recent rows, use `min_row=-100` and `max_row=0`.
-    pub fn get_transactions(
+    ///
+    /// Permissions required: `Perm_R_Transactions`.
+    pub fn list_transactions(
         &self,
         account_id: &str,
-        min_row: u64,
-        max_row: u64,
+        min_row: i64,
+        max_row: i64,
     ) -> impl Future<Output = Result<transactions::TransactionList, reqwest::Error>> + '_ {
         let url = self.url_maker.transactions(account_id, min_row, max_row);
         self.get(url)
     }
 
-    /// Return a list of all transactions that have not completed for the Account.
+    /// Return a list of all transactions that have not completed for the account.
     ///
     /// Pending transactions are not numbered, and may be reordered, deleted or updated at any time.
-    pub fn get_pending_transactions(
+    ///
+    /// Permissions required: `Perm_R_Transactions`.
+    pub fn list_pending_transactions(
         &self,
         account_id: &str,
     ) -> impl Future<Output = Result<transactions::PendingTransactionList, reqwest::Error>> + '_
@@ -186,7 +217,7 @@ impl LunoClient {
     /// Please ensure your program has been thoroughly tested before submitting orders.
     ///
     /// If no `base_account_id` or `counter_account_id` are specified, your default base currency or counter currency account will be used.
-    /// You can find your account IDs by calling `get_balances()`.
+    /// You can find your account IDs by calling `list_balances()`.
     pub fn limit_order(
         &self,
         pair: market::TradingPair,
@@ -215,7 +246,7 @@ impl LunoClient {
     /// Please ensure your program has been thoroughly tested before submitting orders.
     ///
     /// If no base_account_id or counter_account_id are specified, your default base currency or counter currency account will be used.
-    /// You can find your account IDs by calling the `get_balances()`.
+    /// You can find your account IDs by calling the `list_balances()`.
     pub fn market_order(
         &self,
         pair: market::TradingPair,
