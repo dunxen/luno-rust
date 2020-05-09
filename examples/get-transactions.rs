@@ -7,7 +7,7 @@ async fn main() {
 
     let client = LunoClient::new(key, secret);
 
-    match client.get_transactions("ACCOUNT_ID", 1, 100).await {
+    match client.list_transactions("ACCOUNT_ID", 1, 100).await {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
             if let Some(txn) = result.transactions {
