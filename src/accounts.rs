@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use futures::Future;
 use serde::{Deserialize, Serialize};
 
