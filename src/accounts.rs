@@ -1,4 +1,5 @@
-use futures::Future;
+use std::future::Future;
+
 use serde::{Deserialize, Serialize};
 
 use crate::client;

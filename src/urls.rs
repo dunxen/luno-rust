@@ -86,6 +86,11 @@ impl UrlMaker {
         url
     }
 
+    // Build https://api.mybitx.com/api/1/beneficiaries
+    pub fn beneficiaries(&self) -> reqwest::Url {
+        self.build_url("beneficiaries")
+    }
+
     // Build https://api.mybitx.com/api/1/listorders
     pub fn list_orders(&self) -> reqwest::Url {
         self.build_url("listorders")
