@@ -6,7 +6,9 @@ use reqwest::Client;
 use rust_decimal::Decimal;
 use serde::de::DeserializeOwned;
 
-use crate::{accounts, credentials, lightning, market, orders, trades, transactions, urls};
+use crate::{
+    accounts, beneficiaries, credentials, lightning, market, orders, trades, transactions, urls,
+};
 
 const API_BASE: &str = "https://api.mybitx.com/api/1/";
 
@@ -195,6 +197,17 @@ impl LunoClient {
     ) -> impl Future<Output = Result<transactions::PendingTransactionList, reqwest::Error>> + '_
     {
         let url = self.url_maker.pending_transactions(account_id);
+        self.get(url)
+    }
+
+    /// Returns a list of bank beneficiaries
+    ///
+    /// Permissions required: Perm_R_Beneficiaries
+    pub fn list_beneficiaries(
+        &self,
+    ) -> impl Future<Output = Result<beneficiaries::ListBeneficiariesResponse, reqwest::Error>> + '_
+    {
+        let url = self.url_maker.beneficiaries();
         self.get(url)
     }
 

@@ -6,6 +6,7 @@
 //! create a new API key with appropriate permissions.
 
 pub mod accounts;
+pub mod beneficiaries;
 pub mod client;
 pub mod lightning;
 pub mod market;
