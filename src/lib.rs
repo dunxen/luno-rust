@@ -11,6 +11,7 @@ pub mod client;
 pub mod lightning;
 pub mod market;
 pub mod orders;
+pub mod quotes;
 pub mod trades;
 pub mod transactions;
 

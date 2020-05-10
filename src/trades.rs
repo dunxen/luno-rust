@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use std::future::Future;
 
-use crate::{client, TradingPair};
+use crate::{client, LimitOrderType, TradingPair};
 
 /// Represents a trade made on the exchange.
 #[derive(Debug, Deserialize)]
@@ -14,7 +14,8 @@ pub struct Trade {
     pub pair: TradingPair,
     pub price: String,
     pub timestamp: u64,
-    pub r#type: String,
+    #[serde(alias = "type")]
+    pub order_type: LimitOrderType,
     pub volume: String,
 }
 

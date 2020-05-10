@@ -2,14 +2,14 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct Beneficiary {
-    bank_account_branch: String,
-    bank_account_number: String,
-    bank_account_type: String,
-    bank_country: String,
-    bank_name: String,
-    bank_recipient: String,
-    created_at: u64,
-    id: String,
+    pub bank_account_branch: String,
+    pub bank_account_number: String,
+    pub bank_account_type: String,
+    pub bank_country: String,
+    pub bank_name: String,
+    pub bank_recipient: String,
+    pub created_at: u64,
+    pub id: String,
 }
 
 #[derive(Debug, Deserialize)]

@@ -1,3 +1,7 @@
+use rust_decimal::Decimal;
+
+use crate::{MarketOrderType, TradingPair};
+
 pub struct UrlMaker {
     api_base: reqwest::Url,
 }
@@ -15,9 +19,9 @@ impl UrlMaker {
     }
 
     /// Build https://api.mybitx.com/api/1/ticker?pair=...
-    pub fn ticker(&self, pair: &str) -> reqwest::Url {
+    pub fn ticker(&self, pair: TradingPair) -> reqwest::Url {
         let mut url = self.build_url("ticker");
-        url.query_pairs_mut().append_pair("pair", pair);
+        url.query_pairs_mut().append_pair("pair", &pair.to_string());
         url
     }
 
@@ -27,23 +31,23 @@ impl UrlMaker {
     }
 
     /// Build https://api.mybitx.com/api/1/orderbook_top?pair=...
-    pub fn orderbook_top(&self, pair: &str) -> reqwest::Url {
+    pub fn orderbook_top(&self, pair: TradingPair) -> reqwest::Url {
         let mut url = self.build_url("orderbook_top");
-        url.query_pairs_mut().append_pair("pair", pair);
+        url.query_pairs_mut().append_pair("pair", &pair.to_string());
         url
     }
 
     /// Build https://api.mybitx.com/api/1/orderbook?pair=...
-    pub fn orderbook(&self, pair: &str) -> reqwest::Url {
+    pub fn orderbook(&self, pair: TradingPair) -> reqwest::Url {
         let mut url = self.build_url("orderbook");
-        url.query_pairs_mut().append_pair("pair", pair);
+        url.query_pairs_mut().append_pair("pair", &pair.to_string());
         url
     }
 
     /// Build https://api.mybitx.com/api/1/trades?pair=...
-    pub fn trades(&self, pair: &str) -> reqwest::Url {
+    pub fn trades(&self, pair: TradingPair) -> reqwest::Url {
         let mut url = self.build_url("trades");
-        url.query_pairs_mut().append_pair("pair", pair);
+        url.query_pairs_mut().append_pair("pair", &pair.to_string());
         url
     }
 
@@ -119,16 +123,28 @@ impl UrlMaker {
     }
 
     // Build https://api.mybitx.com/api/1/listtrades?pair=...
-    pub fn list_trades(&self, pair: &str) -> reqwest::Url {
+    pub fn list_trades(&self, pair: TradingPair) -> reqwest::Url {
         let mut url = self.build_url("listtrades");
-        url.query_pairs_mut().append_pair("pair", pair);
+        url.query_pairs_mut().append_pair("pair", &pair.to_string());
         url
     }
 
     // Build https://api.mybitx.com/api/1/fee_info?pair=...
-    pub fn fee_info(&self, pair: &str) -> reqwest::Url {
+    pub fn fee_info(&self, pair: TradingPair) -> reqwest::Url {
         let mut url = self.build_url("fee_info");
-        url.query_pairs_mut().append_pair("pair", pair);
+        url.query_pairs_mut().append_pair("pair", &pair.to_string());
+        url
+    }
+
+    // Build https://api.mybitx.com/api/1/quotes
+    pub fn quotes(&self) -> reqwest::Url {
+        self.build_url("quotes")
+    }
+
+    // Build https://api.mybitx.com/api/1/quotes
+    pub fn quote_action(&self, id: &str) -> reqwest::Url {
+        let mut url = self.quotes();
+        url.path_segments_mut().unwrap().extend(&[id]);
         url
     }
 

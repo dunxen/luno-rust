@@ -8,14 +8,14 @@ use crate::client;
 use crate::TradingPair;
 
 /// Represents the type of the limit order.
-#[derive(EnumString, Display)]
+#[derive(EnumString, Display, Deserialize, Serialize, Debug)]
 pub enum LimitOrderType {
     ASK,
     BID,
 }
 
 /// Represents the type of the market order.
-#[derive(EnumString, Display)]
+#[derive(EnumString, Display, Deserialize, Debug)]
 pub enum MarketOrderType {
     BUY,
     SELL,
@@ -49,7 +49,7 @@ pub struct Order {
     /// The state of the order.
     pub state: OrderState,
     /// The type of the order.
-    pub r#type: String,
+    pub order_type: String,
 }
 
 /// A builder for the `list_orders()` method.
@@ -94,7 +94,8 @@ pub struct OrderList {
 #[derive(Debug, Serialize)]
 pub struct LimitOrder {
     pub pair: String,
-    pub r#type: String,
+    #[serde(alias = "type")]
+    pub order_type: LimitOrderType,
     pub volume: String,
     pub price: String,
     pub base_account_id: String,

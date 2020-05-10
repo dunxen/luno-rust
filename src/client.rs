@@ -7,7 +7,8 @@ use rust_decimal::Decimal;
 use serde::de::DeserializeOwned;
 
 use crate::{
-    accounts, beneficiaries, credentials, lightning, market, orders, trades, transactions, urls,
+    accounts, beneficiaries, credentials, lightning, market, orders, quotes, trades, transactions,
+    urls,
 };
 
 const API_BASE: &str = "https://api.mybitx.com/api/1/";
@@ -64,12 +65,28 @@ impl LunoClient {
             .await
     }
 
+    pub(crate) async fn delete<T>(&self, url: reqwest::Url) -> Result<T, reqwest::Error>
+    where
+        T: DeserializeOwned,
+    {
+        self.http
+            .delete(url)
+            .basic_auth(
+                self.credentials.key.to_owned(),
+                Some(self.credentials.secret.to_owned()),
+            )
+            .send()
+            .await?
+            .json::<T>()
+            .await
+    }
+
     /// Returns the latest ticker indicators.
     pub fn get_ticker(
         &self,
         pair: market::TradingPair,
     ) -> impl Future<Output = Result<market::Ticker, reqwest::Error>> + '_ {
-        let url = self.url_maker.ticker(&pair.to_string());
+        let url = self.url_maker.ticker(pair);
         self.get(url)
     }
 
@@ -88,7 +105,7 @@ impl LunoClient {
         &self,
         pair: market::TradingPair,
     ) -> impl Future<Output = Result<market::Orderbook, reqwest::Error>> + '_ {
-        let url = self.url_maker.orderbook_top(&pair.to_string());
+        let url = self.url_maker.orderbook_top(pair);
         self.get(url)
     }
 
@@ -101,7 +118,7 @@ impl LunoClient {
         &self,
         pair: market::TradingPair,
     ) -> impl Future<Output = Result<market::Orderbook, reqwest::Error>> + '_ {
-        let url = self.url_maker.orderbook(&pair.to_string());
+        let url = self.url_maker.orderbook(pair);
         self.get(url)
     }
 
@@ -111,7 +128,7 @@ impl LunoClient {
         &self,
         pair: market::TradingPair,
     ) -> impl Future<Output = Result<market::TradeList, reqwest::Error>> + '_ {
-        let url = self.url_maker.trades(&pair.to_string());
+        let url = self.url_maker.trades(pair);
         self.get(url)
     }
 
@@ -234,13 +251,13 @@ impl LunoClient {
     pub fn limit_order(
         &self,
         pair: market::TradingPair,
-        r#type: orders::LimitOrderType,
+        order_type: orders::LimitOrderType,
         volume: Decimal,
         price: Decimal,
     ) -> orders::PostLimitOrderBuilder {
         let mut params = HashMap::new();
         params.insert("pair", pair.to_string());
-        params.insert("type", r#type.to_string());
+        params.insert("type", order_type.to_string());
         params.insert("volume", volume.to_string());
         params.insert("price", price.to_string());
         orders::PostLimitOrderBuilder {
@@ -263,13 +280,13 @@ impl LunoClient {
     pub fn market_order(
         &self,
         pair: market::TradingPair,
-        r#type: orders::MarketOrderType,
+        order_type: orders::MarketOrderType,
         volume: Decimal,
     ) -> orders::PostMarketOrderBuilder {
         let mut params = HashMap::new();
         params.insert("pair", pair.to_string());
-        params.insert("type", r#type.to_string());
-        match r#type {
+        params.insert("type", order_type.to_string());
+        match order_type {
             orders::MarketOrderType::BUY => params.insert("counter_volume", volume.to_string()),
             orders::MarketOrderType::SELL => params.insert("base_volume", volume.to_string()),
         };
@@ -321,7 +338,7 @@ impl LunoClient {
     pub fn list_own_trades(&self, pair: market::TradingPair) -> trades::ListTradesBuilder {
         trades::ListTradesBuilder {
             luno_client: self,
-            url: self.url_maker.list_trades(&pair.to_string()),
+            url: self.url_maker.list_trades(pair),
             since: None,
             limit: None,
         }
@@ -333,8 +350,73 @@ impl LunoClient {
         &self,
         pair: market::TradingPair,
     ) -> impl Future<Output = Result<trades::FeeInfo, reqwest::Error>> + '_ {
-        let url = self.url_maker.fee_info(&pair.to_string());
+        let url = self.url_maker.fee_info(pair);
         self.get(url)
+    }
+
+    /// Creates a new quote to buy or sell a particular amount of a base currency for a counter currency.
+    ///
+    /// Users can specify either the exact amount to pay or the exact amount to receive.
+    ///
+    /// For example, to buy exactly 0.1 Bitcoin using ZAR, you would create a quote to BUY 0.1 XBTZAR.
+    /// The returned quote includes the appropriate ZAR amount. To buy Bitcoin using exactly ZAR 100, create a quote to SELL 100 ZARXBT.
+    /// The returned quote specifies the Bitcoin as the counter amount returned.
+    ///
+    /// An error is returned if the Account is not verified for the currency pair, or if the Account would have insufficient balance to ever exercise the quote.
+    ///
+    /// Permissions required: `Perm_W_Orders`
+    pub fn quote(
+        &self,
+        order_type: orders::MarketOrderType,
+        base_amount: Decimal,
+        pair: market::TradingPair,
+    ) -> quotes::CreateQuoteBuilder {
+        let mut params = HashMap::new();
+        params.insert("type", order_type.to_string());
+        params.insert("base_amount", base_amount.to_string());
+        params.insert("pair", pair.to_string());
+        quotes::CreateQuoteBuilder {
+            luno_client: self,
+            url: self.url_maker.quotes(),
+            params,
+        }
+    }
+
+    /// Get the latest status of a quote by its id.
+    ///
+    /// Permissions required: `Perm_R_Orders`
+    pub fn get_quote(
+        &self,
+        id: &str,
+    ) -> impl Future<Output = Result<quotes::Quote, reqwest::Error>> + '_ {
+        let url = self.url_maker.quote_action(id);
+        self.get(url)
+    }
+
+    /// Exercise a quote to perform the Trade.
+    /// If there is sufficient balance available in the Account, it will be debited and the counter amount credited.
+    ///
+    /// An error is returned if the quote has expired or if the Account has insufficient available balance.
+    ///
+    /// Permissions required: `Perm_W_Orders`
+    pub fn exercise_quote(
+        &self,
+        id: &str,
+    ) -> impl Future<Output = Result<quotes::Quote, reqwest::Error>> + '_ {
+        let url = self.url_maker.quote_action(id);
+        self.put(url)
+    }
+
+    /// Discard a Quote.
+    /// Once a Quote has been discarded, it cannot be exercised even if it has not expired.
+    ///
+    /// Permissions required: `Perm_W_Orders`
+    pub fn discard_quote(
+        &self,
+        id: &str,
+    ) -> impl Future<Output = Result<quotes::Quote, reqwest::Error>> + '_ {
+        let url = self.url_maker.quote_action(id);
+        self.delete(url)
     }
 
     /// Alpha warning! The Lightning API is still in Alpha stage.
