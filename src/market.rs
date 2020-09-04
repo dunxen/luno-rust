@@ -3,23 +3,41 @@ use strum_macros::{Display, EnumString};
 
 #[derive(EnumString, Display)]
 pub enum Currency {
+    AUD,
+    BCH,
+    BTC,
+    ETH,
     EUR,
+    GBP,
     IDR,
+    LTC,
     MYR,
     NGN,
+    UGX,
+    XBT,
+    XRP,
     ZAR,
     ZMW,
-    BTC,
-    XBT,
-    ETH,
-    BCH,
-    XRP,
-    LTC,
 }
 
 #[derive(EnumString, Display, Debug, Deserialize)]
 pub enum TradingPair {
+    BCHXBT,
+    ETHAUD,
+    ETHEUR,
+    ETHGBP,
+    ETHIDR,
+    ETHMYR,
+    ETHNGN,
+    ETHXBT,
+    ETHZAR,
+    LTCMYR,
+    LTCXBT,
+    LTCNGN,
+    LTCZAR,
+    XBTAUD,
     XBTEUR,
+    XBTGBP,
     XBTIDR,
     XBTMYR,
     XBTNGN,
@@ -27,26 +45,20 @@ pub enum TradingPair {
     XBTUGX,
     XBTZAR,
     XBTZMW,
-    BCHXBT,
-    ETHMYR,
-    ETHNGN,
-    ETHZAR,
-    ETHXBT,
-    XRPZAR,
     XRPMYR,
+    XRPNGN,
     XRPXBT,
-    LTCZAR,
-    LTCXBT,
+    XRPZAR,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Ticker {
     pub ask: String,
-    pub timestamp: u64,
     pub bid: String,
-    pub rolling_24_hour_volume: String,
     pub last_trade: String,
     pub pair: Option<String>,
+    pub rolling_24_hour_volume: String,
+    pub timestamp: u64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -56,29 +68,29 @@ pub struct TickerList {
 
 #[derive(Debug, Deserialize)]
 pub struct Bid {
-    pub volume: String,
     pub price: String,
+    pub volume: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Ask {
-    pub volume: String,
     pub price: String,
+    pub volume: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Orderbook {
-    pub timestamp: u64,
-    pub bids: Option<Vec<Bid>>,
     pub asks: Option<Vec<Ask>>,
+    pub bids: Option<Vec<Bid>>,
+    pub timestamp: u64,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Trade {
-    pub volume: String,
-    pub timestamp: u64,
-    pub price: String,
     pub is_buy: bool,
+    pub price: String,
+    pub timestamp: u64,
+    pub volume: String,
 }
 
 #[derive(Debug, Deserialize)]

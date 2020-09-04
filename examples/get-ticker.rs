@@ -7,7 +7,7 @@ async fn main() {
 
     let client = LunoClient::new(key, secret);
 
-    match client.get_ticker(TradingPair::XBTZAR).await {
+    match client.get_ticker(TradingPair::XBTAUD).await {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
             println!("Bid: {}, Ask: {}", result.bid, result.ask);
