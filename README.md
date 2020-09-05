@@ -13,12 +13,12 @@ In your `Cargo.toml` include:
 
 ```toml
 [dependencies]
-luno = "0.2.1"
+luno = "0.3.0"
 ```
 
 ## Documentation
 
-Documentation can be found [here](https://duncandean.github.io/luno-rust).
+Documentation can be found [here](https://docs.rs/luno).
 
 ## Examples
 
@@ -54,13 +54,13 @@ async fn main() {
 Results:
 
 ```
-Trade { volume: "0.005686", timestamp: 1561918948454, price: "173001.00", is_buy: false }
-Trade { volume: "0.007", timestamp: 1561918942586, price: "173002.00", is_buy: true }
-Trade { volume: "0.006936", timestamp: 1561918937500, price: "173002.00", is_buy: true }
-Trade { volume: "0.006345", timestamp: 1561918911780, price: "173378.00", is_buy: true }
-Trade { volume: "0.0005", timestamp: 1561918878415, price: "173585.00", is_buy: false }
-Trade { volume: "0.00577", timestamp: 1561918867525, price: "173590.00", is_buy: false }
+Trade { volume: 0.005686, timestamp: 1561918948454, price: 173001.00, is_buy: false }
+Trade { volume: 0.007, timestamp: 1561918942586, price: 173002.00, is_buy: true }
+Trade { volume: 0.006936, timestamp: 1561918937500, price: 173002.00, is_buy: true }
+Trade { volume: 0.006345, timestamp: 1561918911780, price: 173378.00, is_buy: true }
+Trade { volume: 0.0005, timestamp: 1561918878415, price: 173585.00, is_buy: false }
+Trade { volume: 0.00577, timestamp: 1561918867525, price: 173590.00, is_buy: false }
 ...
 ```
 
-By default, all methods asynchronous and return a `Future` wrapping `Result<T, reqwest::Error>`.
+By default, all methods are asynchronous and return a `Future` wrapping `Result<T, reqwest::Error>`.

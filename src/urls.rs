@@ -1,6 +1,4 @@
-use rust_decimal::Decimal;
-
-use crate::{MarketOrderType, TradingPair};
+use crate::TradingPair;
 
 pub struct UrlMaker {
     api_base: reqwest::Url,
@@ -145,29 +143,6 @@ impl UrlMaker {
     pub fn quote_action(&self, id: &str) -> reqwest::Url {
         let mut url = self.quotes();
         url.path_segments_mut().unwrap().extend(&[id]);
-        url
-    }
-
-    // Build https://api.mybitx.com/api/1/lightning
-    pub fn lightning(&self) -> reqwest::Url {
-        self.build_url("lightning")
-    }
-
-    pub fn lightning_send(&self) -> reqwest::Url {
-        let mut url = self.lightning();
-        url.path_segments_mut().unwrap().extend(&["send"]);
-        url
-    }
-
-    pub fn lightning_receive(&self) -> reqwest::Url {
-        let mut url = self.lightning();
-        url.path_segments_mut().unwrap().extend(&["receive"]);
-        url
-    }
-
-    pub fn lightning_invoice_lookup(&self, id: i64) -> reqwest::Url {
-        let mut url = self.lightning_receive();
-        url.path_segments_mut().unwrap().extend(&[&id.to_string()]);
         url
     }
 }

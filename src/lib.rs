@@ -8,7 +8,6 @@
 pub mod accounts;
 pub mod beneficiaries;
 pub mod client;
-pub mod lightning;
 pub mod market;
 pub mod orders;
 pub mod quotes;
@@ -20,4 +19,4 @@ mod urls;
 
 pub use client::LunoClient;
 pub use market::{Currency, TradingPair};
-pub use orders::{LimitOrderType, MarketOrderType};
+pub use orders::{LimitOrderType, MarketOrderType, StopDirection};

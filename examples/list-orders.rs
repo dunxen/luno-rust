@@ -10,13 +10,14 @@ async fn main() {
     match client
         .list_orders()
         .filter_state(OrderState::COMPLETE)
+        .filter_created_before(1390168800000)
         .get()
         .await
     {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
-            if let Some(order) = result.orders {
-                println!("{:?}", order);
+            if let Some(orders) = result.orders {
+                println!("{:?}", orders);
             }
         }
     }
