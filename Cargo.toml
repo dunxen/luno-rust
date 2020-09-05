@@ -1,6 +1,6 @@
 [package]
 name = "luno"
-version = "0.2.1"
+version = "0.3.0"
 description = "An unofficial Rust wrapper for the Luno API."
 authors = ["Duncan Dean <duncangleeddean@gmail.com>"]
 edition = "2018"
