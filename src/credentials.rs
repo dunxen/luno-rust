@@ -5,8 +5,11 @@ pub struct Credentials {
 }
 
 impl Credentials {
-    pub fn new(key: String, secret: String) -> Credentials {
-        Credentials { key, secret }
+    pub fn new(key: &str, secret: &str) -> Credentials {
+        Credentials {
+            key: key.into(),
+            secret: secret.into(),
+        }
     }
 }
 
@@ -16,7 +19,7 @@ mod tests {
     fn test_new() {
         let (key, secret) = (String::from("TEST_KEY"), String::from("TEST_SECRET"));
         assert_eq!(
-            super::Credentials::new(key.to_owned(), secret.to_owned()),
+            super::Credentials::new(&key, &secret),
             super::Credentials { key, secret },
         )
     }

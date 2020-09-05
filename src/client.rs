@@ -10,7 +10,7 @@ use crate::{
     accounts, beneficiaries, credentials, market, orders, quotes, trades, transactions, urls,
 };
 
-const API_BASE: &str = "https://api.mybitx.com/api/1/";
+const API_BASE: &str = "https://api.luno.com/api/1/";
 
 /// The top level client for interacting with the Luno API.
 pub struct LunoClient {
@@ -20,10 +20,10 @@ pub struct LunoClient {
 }
 
 impl LunoClient {
-    pub fn new(key: String, secret: String) -> LunoClient {
+    pub fn new(key: &str, secret: &str) -> LunoClient {
         let credentials = credentials::Credentials::new(key, secret);
         let http = Client::new();
-        let url_maker = urls::UrlMaker::new(API_BASE.to_owned());
+        let url_maker = urls::UrlMaker::new(API_BASE);
 
         LunoClient {
             credentials,

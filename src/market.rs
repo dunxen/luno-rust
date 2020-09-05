@@ -1,7 +1,8 @@
-use serde::Deserialize;
+use rust_decimal::Decimal;
+use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 
-#[derive(EnumString, Display)]
+#[derive(EnumString, Display, Debug, Serialize, Deserialize)]
 pub enum Currency {
     AUD,
     BCH,
@@ -53,11 +54,11 @@ pub enum TradingPair {
 
 #[derive(Debug, Deserialize)]
 pub struct Ticker {
-    pub ask: String,
-    pub bid: String,
-    pub last_trade: String,
-    pub pair: Option<String>,
-    pub rolling_24_hour_volume: String,
+    pub ask: Decimal,
+    pub bid: Decimal,
+    pub last_trade: Decimal,
+    pub pair: TradingPair,
+    pub rolling_24_hour_volume: Decimal,
     pub timestamp: u64,
 }
 
@@ -68,14 +69,14 @@ pub struct TickerList {
 
 #[derive(Debug, Deserialize)]
 pub struct Bid {
-    pub price: String,
-    pub volume: String,
+    pub price: Decimal,
+    pub volume: Decimal,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Ask {
-    pub price: String,
-    pub volume: String,
+    pub price: Decimal,
+    pub volume: Decimal,
 }
 
 #[derive(Debug, Deserialize)]
@@ -88,9 +89,9 @@ pub struct Orderbook {
 #[derive(Debug, Deserialize)]
 pub struct Trade {
     pub is_buy: bool,
-    pub price: String,
+    pub price: Decimal,
     pub timestamp: u64,
-    pub volume: String,
+    pub volume: Decimal,
 }
 
 #[derive(Debug, Deserialize)]
