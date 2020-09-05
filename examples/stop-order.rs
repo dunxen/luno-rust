@@ -7,7 +7,7 @@ async fn main() {
 
     let client = LunoClient::new(key, secret);
 
-    match client.stop_order("ORDER_ID").await {
+    match client.stop_order("BXBY6JS2BB2MFV2").await {
         Err(e) => eprintln!("{:?}", e),
         Ok(result) => {
             println!("{:?}", result);

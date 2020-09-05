@@ -7,8 +7,7 @@ use rust_decimal::Decimal;
 use serde::de::DeserializeOwned;
 
 use crate::{
-    accounts, beneficiaries, credentials, lightning, market, orders, quotes, trades, transactions,
-    urls,
+    accounts, beneficiaries, credentials, market, orders, quotes, trades, transactions, urls,
 };
 
 const API_BASE: &str = "https://api.mybitx.com/api/1/";
@@ -236,6 +235,8 @@ impl LunoClient {
         orders::ListOrdersBuilder {
             luno_client: self,
             url: self.url_maker.list_orders(),
+            limit: None,
+            created_before: None,
             pair: None,
             state: None,
         }
@@ -340,6 +341,10 @@ impl LunoClient {
             luno_client: self,
             url: self.url_maker.list_trades(pair),
             since: None,
+            before: None,
+            after_seq: None,
+            before_seq: None,
+            sort_desc: None,
             limit: None,
         }
     }
@@ -417,49 +422,5 @@ impl LunoClient {
     ) -> impl Future<Output = Result<quotes::Quote, reqwest::Error>> + '_ {
         let url = self.url_maker.quote_action(id);
         self.delete(url)
-    }
-
-    /// Alpha warning! The Lightning API is still in Alpha stage.
-    /// The risks are limited api availability and channel capacity.
-    ///
-    /// Send Bitcoin over the lightning network from your Bitcoin wallet.
-    /// Warning! Cryptocurrency transactions are irreversible.
-    ///
-    /// Please ensure your program has been thoroughly tested before using this call.
-    pub fn lightning_send(&self, payment_request: &str) -> lightning::LightningSendBuilder {
-        let mut params = HashMap::new();
-        params.insert("payment_request", payment_request.to_string());
-        lightning::LightningSendBuilder {
-            luno_client: self,
-            url: self.url_maker.lightning_send(),
-            params,
-        }
-    }
-
-    /// Alpha warning! The Lightning API is still in Alpha stage.
-    /// The risks are limited API availability and channel capacity.
-    ///
-    /// Create a lightning invoice which can be used to receive BTC payments over the lightning network.
-    pub fn lightning_receive(&self, amount: Decimal) -> lightning::LightningReceiveBuilder {
-        let mut params = HashMap::new();
-        params.insert("amount", amount.to_string());
-        lightning::LightningReceiveBuilder {
-            luno_client: self,
-            url: self.url_maker.lightning_receive(),
-            params,
-        }
-    }
-
-    /// Alpha warning! The Lightning API is still in Alpha stage.
-    /// The risks are limited API availability and channel capacity.
-    ///
-    /// Lookup the status of a lightning receive invoice.
-    pub fn lookup_lightning_invoice(
-        &self,
-        id: i64,
-    ) -> impl Future<Output = Result<lightning::LightningInvoiceLookupResponse, reqwest::Error>> + '_
-    {
-        let url = self.url_maker.lightning_invoice_lookup(id);
-        self.get(url)
     }
 }
