@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
+use reqwest::Url;
 use rust_decimal::Decimal;
 use serde::Deserialize;
 
-use crate::{client::LunoClient, market::TradingPair, orders::MarketOrderType};
+use crate::{LunoClient, MarketOrderType, TradingPair};
 
 #[derive(Debug, Deserialize)]
 pub struct Quote {
@@ -21,7 +22,7 @@ pub struct Quote {
 
 pub struct CreateQuoteBuilder<'a> {
     pub(crate) luno_client: &'a LunoClient,
-    pub(crate) url: reqwest::Url,
+    pub(crate) url: Url,
     pub(crate) params: HashMap<&'a str, String>,
 }
 

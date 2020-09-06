@@ -9,7 +9,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         client
             .list_own_trades(TradingPair::ETHZAR)
             .since(1_561_939_200)
-            .get()
+            .list()
             .await?
     );
     Ok(())

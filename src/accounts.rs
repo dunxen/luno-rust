@@ -1,5 +1,3 @@
-use std::future::Future;
-
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
@@ -8,7 +6,7 @@ use crate::market::Currency;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Account {
-    pub id: Option<String>,
+    pub id: String,
     pub currency: Currency,
     pub name: String,
 }
@@ -24,7 +22,7 @@ pub struct Balance {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct BalanceList {
+pub struct ListBalancesResponse {
     pub balance: Vec<Balance>,
 }
 
@@ -44,7 +42,7 @@ impl<'a> ListBalancesBuilder<'a> {
         self
     }
 
-    pub fn list(&self) -> impl Future<Output = Result<BalanceList, reqwest::Error>> + '_ {
+    pub async fn list(&self) -> Result<Vec<Balance>, reqwest::Error> {
         let mut url = self.url.clone();
         if let Some(assets) = self.assets {
             url.query_pairs_mut().append_pair(
@@ -56,6 +54,10 @@ impl<'a> ListBalancesBuilder<'a> {
                     .join(","),
             );
         }
-        self.luno_client.get(url)
+        Ok(self
+            .luno_client
+            .get::<ListBalancesResponse>(url)
+            .await?
+            .balance)
     }
 }

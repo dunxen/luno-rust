@@ -63,8 +63,8 @@ pub struct Ticker {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct TickerList {
-    pub tickers: Option<Vec<Ticker>>,
+pub struct ListTickersResponse {
+    pub tickers: Vec<Ticker>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -81,8 +81,8 @@ pub struct Ask {
 
 #[derive(Debug, Deserialize)]
 pub struct Orderbook {
-    pub asks: Option<Vec<Ask>>,
-    pub bids: Option<Vec<Bid>>,
+    pub asks: Vec<Ask>,
+    pub bids: Vec<Bid>,
     pub timestamp: u64,
 }
 
@@ -95,6 +95,6 @@ pub struct Trade {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct TradeList {
-    pub trades: Option<Vec<Trade>>,
+pub struct ListTradesResponse {
+    pub trades: Vec<Trade>,
 }

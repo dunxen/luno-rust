@@ -7,10 +7,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!(
         "{:?}",
         client
-            .list_orders()
+            .orders()
             .filter_state(OrderState::COMPLETE)
             .filter_created_before(1390168800000)
-            .get()
+            .list()
             .await?
     );
     Ok(())

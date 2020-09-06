@@ -14,5 +14,5 @@ pub struct Beneficiary {
 
 #[derive(Debug, Deserialize)]
 pub struct ListBeneficiariesResponse {
-    beneficiaries: Vec<Beneficiary>,
+    pub beneficiaries: Vec<Beneficiary>,
 }

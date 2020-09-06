@@ -17,6 +17,21 @@ pub mod transactions;
 mod credentials;
 mod urls;
 
+pub use accounts::{Account, Balance, ListBalancesBuilder, UpdateAccountNameResponse};
+pub use beneficiaries::{Beneficiary, ListBeneficiariesResponse};
 pub use client::LunoClient;
-pub use market::{Currency, TradingPair};
-pub use orders::{LimitOrderType, MarketOrderType, StopDirection};
+pub use credentials::Credentials;
+pub use market::{
+    Ask, Bid, Currency, ListTickersResponse, ListTradesResponse, Orderbook, Ticker, Trade,
+    TradingPair,
+};
+pub use orders::{
+    LimitOrderType, ListOrdersBuilder, ListOrdersResponse, MarketOrderType, Order,
+    PostLimitOrderBuilder, PostMarketOrderBuilder, PostOrderResponse, StopDirection,
+    StopOrderResponse,
+};
+pub use quotes::{CreateQuoteBuilder, Quote};
+pub use trades::{FeeInfo, ListOwnTradesBuilder, OwnTrade};
+pub use transactions::{ListPendingTransactionsResponse, ListTransactionsResponse, Transaction};
+
+use urls::UrlMaker;

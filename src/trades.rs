@@ -1,13 +1,13 @@
 use serde::Deserialize;
-use std::future::Future;
 
+use reqwest::Url;
 use rust_decimal::Decimal;
 
-use crate::{client, LimitOrderType, TradingPair};
+use crate::{LimitOrderType, LunoClient, TradingPair};
 
 /// Represents a trade made on the exchange.
 #[derive(Debug, Deserialize)]
-pub struct Trade {
+pub struct OwnTrade {
     pub base: Decimal,
     pub counter: Decimal,
     pub fee_base: Decimal,
@@ -21,56 +21,50 @@ pub struct Trade {
     pub volume: Decimal,
 }
 
-/// Contains a list of trades.
-#[derive(Debug, Deserialize)]
-pub struct TradeList {
-    pub trades: Option<Vec<Trade>>,
-}
-
 /// A builder for the `list_trades()` method.
-pub struct ListTradesBuilder<'a> {
+pub struct ListOwnTradesBuilder<'a> {
     pub(crate) limit: Option<u64>,
     pub(crate) since: Option<u64>,
     pub(crate) before: Option<u64>,
     pub(crate) after_seq: Option<u64>,
     pub(crate) before_seq: Option<u64>,
     pub(crate) sort_desc: Option<bool>,
-    pub(crate) luno_client: &'a client::LunoClient,
-    pub(crate) url: reqwest::Url,
+    pub(crate) luno_client: &'a LunoClient,
+    pub(crate) url: Url,
 }
 
-impl<'a> ListTradesBuilder<'a> {
-    pub fn since(&mut self, timestamp: u64) -> &mut ListTradesBuilder<'a> {
+impl<'a> ListOwnTradesBuilder<'a> {
+    pub fn since(&mut self, timestamp: u64) -> &mut ListOwnTradesBuilder<'a> {
         self.since = Some(timestamp);
         self
     }
 
-    pub fn limit(&mut self, count: u64) -> &mut ListTradesBuilder<'a> {
+    pub fn limit(&mut self, count: u64) -> &mut ListOwnTradesBuilder<'a> {
         self.limit = Some(count);
         self
     }
 
-    pub fn before(&mut self, timestamp: u64) -> &mut ListTradesBuilder<'a> {
+    pub fn before(&mut self, timestamp: u64) -> &mut ListOwnTradesBuilder<'a> {
         self.before = Some(timestamp);
         self
     }
 
-    pub fn after_seq(&mut self, seq: u64) -> &mut ListTradesBuilder<'a> {
+    pub fn after_seq(&mut self, seq: u64) -> &mut ListOwnTradesBuilder<'a> {
         self.after_seq = Some(seq);
         self
     }
 
-    pub fn before_seq(&mut self, seq: u64) -> &mut ListTradesBuilder<'a> {
+    pub fn before_seq(&mut self, seq: u64) -> &mut ListOwnTradesBuilder<'a> {
         self.before_seq = Some(seq);
         self
     }
 
-    pub fn sort_desc(&mut self, sorted: bool) -> &mut ListTradesBuilder<'a> {
+    pub fn sort_desc(&mut self, sorted: bool) -> &mut ListOwnTradesBuilder<'a> {
         self.sort_desc = Some(sorted);
         self
     }
 
-    pub fn get(&self) -> impl Future<Output = Result<TradeList, reqwest::Error>> + '_ {
+    pub async fn list(&self) -> Result<Vec<OwnTrade>, reqwest::Error> {
         let mut url = self.url.clone();
         if let Some(since) = self.since {
             url.query_pairs_mut()
@@ -96,8 +90,17 @@ impl<'a> ListTradesBuilder<'a> {
             url.query_pairs_mut()
                 .append_pair("sort_desc", &sorted.to_string());
         }
-        self.luno_client.get(url)
+        Ok(self
+            .luno_client
+            .get::<ListOwnTradesResponse>(url)
+            .await?
+            .trades)
     }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ListOwnTradesResponse {
+    pub trades: Vec<OwnTrade>,
 }
 
 /// Represents the fee info associated with recent trades.
