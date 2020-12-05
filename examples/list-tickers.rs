@@ -4,9 +4,5 @@ use luno::LunoClient;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = LunoClient::new("LUNO_API_KEY", "LUNO_API_SECRET");
 
-    println!(
-        "{:?}",
-        client.list_transactions("ACCOUNT_ID", 1, 100).await?
-    );
-    Ok(())
+    Ok(println!("{:?}", client.list_tickers().await?))
 }

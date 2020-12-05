@@ -4,7 +4,7 @@ use luno::{orders::OrderState, LunoClient};
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = LunoClient::new("LUNO_API_KEY", "LUNO_API_SECRET");
 
-    println!(
+    Ok(println!(
         "{:?}",
         client
             .orders()
@@ -12,6 +12,5 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .filter_created_before(1390168800000)
             .list()
             .await?
-    );
-    Ok(())
+    ))
 }

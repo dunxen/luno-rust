@@ -5,10 +5,10 @@ pub struct Credentials {
 }
 
 impl Credentials {
-    pub fn new(key: &str, secret: &str) -> Credentials {
+    pub fn new<T: AsRef<str>>(key: T, secret: T) -> Credentials {
         Credentials {
-            key: key.into(),
-            secret: secret.into(),
+            key: key.as_ref().into(),
+            secret: secret.as_ref().into(),
         }
     }
 }

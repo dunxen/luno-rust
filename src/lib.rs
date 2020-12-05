@@ -26,9 +26,8 @@ pub use market::{
     TradingPair,
 };
 pub use orders::{
-    LimitOrderType, ListOrdersBuilder, ListOrdersResponse, MarketOrderType, Order,
-    PostLimitOrderBuilder, PostMarketOrderBuilder, PostOrderResponse, StopDirection,
-    StopOrderResponse,
+    CancelOrderResponse, LimitOrderType, ListOrdersBuilder, ListOrdersResponse, MarketOrderType,
+    Order, PostLimitOrderBuilder, PostMarketOrderBuilder, PostOrderResponse, StopDirection,
 };
 pub use quotes::{CreateQuoteBuilder, Quote};
 pub use trades::{FeeInfo, ListOwnTradesBuilder, OwnTrade};

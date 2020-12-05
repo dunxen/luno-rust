@@ -6,12 +6,11 @@ use rust_decimal::Decimal;
 use serde::de::DeserializeOwned;
 
 use crate::{
-    Account, Beneficiary, CreateQuoteBuilder, Credentials, Currency, FeeInfo, LimitOrderType,
-    ListBalancesBuilder, ListBeneficiariesResponse, ListOrdersBuilder, ListOwnTradesBuilder,
-    ListPendingTransactionsResponse, ListTickersResponse, ListTradesResponse,
+    Account, Beneficiary, CancelOrderResponse, CreateQuoteBuilder, Credentials, Currency, FeeInfo,
+    LimitOrderType, ListBalancesBuilder, ListBeneficiariesResponse, ListOrdersBuilder,
+    ListOwnTradesBuilder, ListPendingTransactionsResponse, ListTickersResponse, ListTradesResponse,
     ListTransactionsResponse, MarketOrderType, Order, Orderbook, PostLimitOrderBuilder,
-    PostMarketOrderBuilder, Quote, StopOrderResponse, Ticker, Trade, TradingPair,
-    UpdateAccountNameResponse, UrlMaker,
+    PostMarketOrderBuilder, Quote, Ticker, Trade, TradingPair, UpdateAccountNameResponse, UrlMaker,
 };
 
 const API_BASE: &str = "https://api.luno.com/api/1/";
@@ -24,7 +23,7 @@ pub struct LunoClient {
 }
 
 impl LunoClient {
-    pub fn new(key: &str, secret: &str) -> LunoClient {
+    pub fn new<T: AsRef<str>>(key: T, secret: T) -> LunoClient {
         let credentials = Credentials::new(key, secret);
         let http = Client::new();
         let url_maker = UrlMaker::new(API_BASE);
@@ -293,7 +292,10 @@ impl LunoClient {
     }
 
     /// Request to cancel an order.
-    pub async fn cancel_order(&self, order_id: &str) -> Result<StopOrderResponse, reqwest::Error> {
+    pub async fn cancel_order(
+        &self,
+        order_id: &str,
+    ) -> Result<CancelOrderResponse, reqwest::Error> {
         let url = self.url_maker.stop_order();
         let mut params = HashMap::new();
         params.insert("order_id", order_id.to_string());
@@ -307,7 +309,7 @@ impl LunoClient {
             .form(&params)
             .send()
             .await?
-            .json::<StopOrderResponse>()
+            .json::<CancelOrderResponse>()
             .await
     }
 

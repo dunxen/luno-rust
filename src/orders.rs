@@ -86,7 +86,7 @@ impl<'a> ListOrdersBuilder<'a> {
     }
 
     /// Executes the list query with the specified parameters.
-    pub async fn list(&self) -> Result<Vec<Order>, Error> {
+    pub async fn list(&self) -> Result<Option<Vec<Order>>, Error> {
         let mut url = self.url.clone();
         if let Some(state) = &self.state {
             url.query_pairs_mut()
@@ -114,7 +114,7 @@ impl<'a> ListOrdersBuilder<'a> {
 /// Contains a list of orders.
 #[derive(Debug, Deserialize)]
 pub struct ListOrdersResponse {
-    pub orders: Vec<Order>,
+    pub orders: Option<Vec<Order>>,
 }
 
 /// Represents a limit order made on the exchange.
@@ -141,7 +141,7 @@ pub struct PostOrderResponse {
 
 /// Contains information regarding the stopped order.
 #[derive(Debug, Deserialize)]
-pub struct StopOrderResponse {
+pub struct CancelOrderResponse {
     pub success: bool,
 }
 
