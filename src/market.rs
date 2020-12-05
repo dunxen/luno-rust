@@ -1,7 +1,8 @@
-use serde::Deserialize;
+use rust_decimal::Decimal;
+use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 
-#[derive(EnumString, Display)]
+#[derive(EnumString, Display, Debug, Serialize, Deserialize)]
 pub enum Currency {
     AUD,
     BCH,
@@ -53,47 +54,47 @@ pub enum TradingPair {
 
 #[derive(Debug, Deserialize)]
 pub struct Ticker {
-    pub ask: String,
-    pub bid: String,
-    pub last_trade: String,
-    pub pair: Option<String>,
-    pub rolling_24_hour_volume: String,
+    pub ask: Decimal,
+    pub bid: Decimal,
+    pub last_trade: Decimal,
+    pub pair: TradingPair,
+    pub rolling_24_hour_volume: Decimal,
     pub timestamp: u64,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct TickerList {
-    pub tickers: Option<Vec<Ticker>>,
+pub struct ListTickersResponse {
+    pub tickers: Vec<Ticker>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Bid {
-    pub price: String,
-    pub volume: String,
+    pub price: Decimal,
+    pub volume: Decimal,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Ask {
-    pub price: String,
-    pub volume: String,
+    pub price: Decimal,
+    pub volume: Decimal,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Orderbook {
-    pub asks: Option<Vec<Ask>>,
-    pub bids: Option<Vec<Bid>>,
+    pub asks: Vec<Ask>,
+    pub bids: Vec<Bid>,
     pub timestamp: u64,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Trade {
     pub is_buy: bool,
-    pub price: String,
+    pub price: Decimal,
     pub timestamp: u64,
-    pub volume: String,
+    pub volume: Decimal,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct TradeList {
-    pub trades: Option<Vec<Trade>>,
+pub struct ListTradesResponse {
+    pub trades: Vec<Trade>,
 }

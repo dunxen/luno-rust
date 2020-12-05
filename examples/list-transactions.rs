@@ -1,4 +1,4 @@
-use luno::{LunoClient, TradingPair};
+use luno::LunoClient;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -6,6 +6,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(println!(
         "{:?}",
-        client.get_orderbook_top(TradingPair::XBTZAR).await?
+        client.list_transactions("ACCOUNT_ID", 1, 100).await?
     ))
 }

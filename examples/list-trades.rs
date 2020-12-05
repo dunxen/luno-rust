@@ -6,6 +6,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(println!(
         "{:?}",
-        client.get_orderbook_top(TradingPair::XBTZAR).await?
+        client.list_trades(TradingPair::XBTAUD).await?
     ))
 }

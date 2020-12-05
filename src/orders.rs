@@ -1,11 +1,11 @@
 use std::collections::HashMap;
-use std::future::Future;
 
+use reqwest::{Error, Url};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 
-use crate::client;
+use crate::LunoClient;
 use crate::TradingPair;
 
 /// Represents the type of the limit order.
@@ -60,8 +60,8 @@ pub struct ListOrdersBuilder<'a> {
     pub(crate) pair: Option<TradingPair>,
     pub(crate) created_before: Option<u64>,
     pub(crate) limit: Option<u64>,
-    pub(crate) luno_client: &'a client::LunoClient,
-    pub(crate) url: reqwest::Url,
+    pub(crate) luno_client: &'a LunoClient,
+    pub(crate) url: Url,
 }
 
 impl<'a> ListOrdersBuilder<'a> {
@@ -85,7 +85,8 @@ impl<'a> ListOrdersBuilder<'a> {
         self
     }
 
-    pub fn get(&self) -> impl Future<Output = Result<OrderList, reqwest::Error>> + '_ {
+    /// Executes the list query with the specified parameters.
+    pub async fn list(&self) -> Result<Option<Vec<Order>>, Error> {
         let mut url = self.url.clone();
         if let Some(state) = &self.state {
             url.query_pairs_mut()
@@ -102,13 +103,17 @@ impl<'a> ListOrdersBuilder<'a> {
             url.query_pairs_mut()
                 .append_pair("limit", &limit.to_string());
         }
-        self.luno_client.get(url)
+        Ok(self
+            .luno_client
+            .get::<ListOrdersResponse>(url)
+            .await?
+            .orders)
     }
 }
 
 /// Contains a list of orders.
 #[derive(Debug, Deserialize)]
-pub struct OrderList {
+pub struct ListOrdersResponse {
     pub orders: Option<Vec<Order>>,
 }
 
@@ -136,7 +141,7 @@ pub struct PostOrderResponse {
 
 /// Contains information regarding the stopped order.
 #[derive(Debug, Deserialize)]
-pub struct StopOrderResponse {
+pub struct CancelOrderResponse {
     pub success: bool,
 }
 
@@ -162,8 +167,8 @@ pub enum StopDirection {
 
 /// A builder for the `limit_order()` method.
 pub struct PostLimitOrderBuilder<'a> {
-    pub(crate) luno_client: &'a client::LunoClient,
-    pub(crate) url: reqwest::Url,
+    pub(crate) luno_client: &'a LunoClient,
+    pub(crate) url: Url,
     pub(crate) params: HashMap<&'a str, String>,
 }
 
@@ -196,7 +201,7 @@ impl<'a> PostLimitOrderBuilder<'a> {
         self
     }
 
-    pub async fn post(&mut self) -> Result<PostOrderResponse, reqwest::Error> {
+    pub async fn post(&mut self) -> Result<PostOrderResponse, Error> {
         let url = self.url.clone();
 
         self.luno_client
@@ -216,8 +221,8 @@ impl<'a> PostLimitOrderBuilder<'a> {
 
 /// A builder for the `market_order()` method.
 pub struct PostMarketOrderBuilder<'a> {
-    pub(crate) luno_client: &'a client::LunoClient,
-    pub(crate) url: reqwest::Url,
+    pub(crate) luno_client: &'a LunoClient,
+    pub(crate) url: Url,
     pub(crate) params: HashMap<&'a str, String>,
 }
 
@@ -232,7 +237,7 @@ impl<'a> PostMarketOrderBuilder<'a> {
         self
     }
 
-    pub async fn post(&mut self) -> Result<PostOrderResponse, reqwest::Error> {
+    pub async fn post(&mut self) -> Result<PostOrderResponse, Error> {
         let url = self.url.clone();
         self.luno_client
             .http

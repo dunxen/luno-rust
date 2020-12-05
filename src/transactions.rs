@@ -1,29 +1,31 @@
 use rust_decimal::Decimal;
 use serde::Deserialize;
 
+use crate::market::Currency;
+
 /// Represents a transaction on an account.
 #[derive(Debug, Deserialize)]
 pub struct Transaction {
-    pub row_index: Option<u64>,
+    pub row_index: u64,
     pub timestamp: u64,
     pub balance: Decimal,
     pub available: Decimal,
     pub balance_delta: Decimal,
     pub available_delta: Decimal,
-    pub currency: String,
+    pub currency: Currency,
     pub description: String,
 }
 
 /// Contains a list of transactions.
 #[derive(Debug, Deserialize)]
-pub struct TransactionList {
+pub struct ListTransactionsResponse {
     pub id: String,
-    pub transactions: Option<Vec<Transaction>>,
+    pub transactions: Vec<Transaction>,
 }
 
 /// Contains a list of pending transactions.
 #[derive(Debug, Deserialize)]
-pub struct PendingTransactionList {
+pub struct ListPendingTransactionsResponse {
     pub id: String,
-    pub pending: Option<Vec<Transaction>>,
+    pub pending: Vec<Transaction>,
 }
