@@ -1,7 +1,7 @@
 # (Unofficial) Luno Rust API Wrapper 🦀🚀
 
 ![Rust](https://github.com/duncandean/luno-rust/workflows/Rust/badge.svg)
-[![codecov](https://codecov.io/gh/duncandean/luno-rust/branch/trunk/graph/badge.svg)](https://codecov.io/gh/duncandean/luno-rust)
+[![codecov](https://codecov.io/gh/duncandean/luno-rust/branch/main/graph/badge.svg)](https://codecov.io/gh/duncandean/luno-rust)
 
 A work-in-progress.
 
