@@ -39,8 +39,8 @@ async fn main() {
 
     match client.list_trades(TradingPair::XBTZAR).await {
         Err(e) => eprintln!("{:?}", e),
-        Ok(result) => {
-            if let Some(trade) = result.trades {
+        Ok(trades) => {
+            for trade in trades {
                 println!("{:?}", trade);
             }
         }
