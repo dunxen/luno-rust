@@ -35,15 +35,12 @@ use luno::{LunoClient, TradingPair};
 
 #[tokio::main]
 async fn main() {
-    let key = String::from("LUNO_API_KEY");
-    let secret = String::from("LUNO_API_SECRET");
-
-    let client = LunoClient::new(key, secret);
+    let client = LunoClient::new("LUNO_API_KEY", "LUNO_API_SECRET");
 
     match client.list_trades(TradingPair::XBTZAR).await {
         Err(e) => eprintln!("{:?}", e),
-        Ok(result) => {
-            if let Some(trade) = result.trades {
+        Ok(trades) => {
+            for trade in trades {
                 println!("{:?}", trade);
             }
         }
@@ -54,12 +51,12 @@ async fn main() {
 Results:
 
 ```
-Trade { volume: 0.005686, timestamp: 1561918948454, price: 173001.00, is_buy: false }
-Trade { volume: 0.007, timestamp: 1561918942586, price: 173002.00, is_buy: true }
-Trade { volume: 0.006936, timestamp: 1561918937500, price: 173002.00, is_buy: true }
-Trade { volume: 0.006345, timestamp: 1561918911780, price: 173378.00, is_buy: true }
-Trade { volume: 0.0005, timestamp: 1561918878415, price: 173585.00, is_buy: false }
-Trade { volume: 0.00577, timestamp: 1561918867525, price: 173590.00, is_buy: false }
+Trade { is_buy: false, price: 357379.00, timestamp: 1608452000171, volume: 0.037895 }
+Trade { is_buy: false, price: 357380.00, timestamp: 1608452000161, volume: 0.012887 }
+Trade { is_buy: true, price: 357672.00, timestamp: 1608451984425, volume: 0.001678 }
+Trade { is_buy: false, price: 357369.00, timestamp: 1608451981078, volume: 0.000986 }
+Trade { is_buy: true, price: 357682.00, timestamp: 1608451969439, volume: 0.001677 }
+Trade { is_buy: false, price: 357357.00, timestamp: 1608451961962, volume: 0.002143 }
 ...
 ```
 

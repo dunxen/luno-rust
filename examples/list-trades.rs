@@ -1,11 +1,15 @@
 use luno::{LunoClient, TradingPair};
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() {
     let client = LunoClient::new("LUNO_API_KEY", "LUNO_API_SECRET");
 
-    Ok(println!(
-        "{:?}",
-        client.list_trades(TradingPair::XBTAUD).await?
-    ))
+    match client.list_trades(TradingPair::XBTZAR).await {
+        Err(e) => eprintln!("{:?}", e),
+        Ok(trades) => {
+            for trade in trades {
+                println!("{:?}", trade);
+            }
+        }
+    }
 }
