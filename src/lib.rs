@@ -22,12 +22,12 @@ pub use beneficiaries::{Beneficiary, ListBeneficiariesResponse};
 pub use client::LunoClient;
 pub use credentials::Credentials;
 pub use market::{
-    Ask, Bid, Currency, ListTickersResponse, ListTradesResponse, Orderbook, Ticker, Trade,
-    TradingPair,
+	Ask, Bid, Currency, ListTickersResponse, ListTradesResponse, Orderbook, Ticker, Trade,
+	TradingPair,
 };
 pub use orders::{
-    CancelOrderResponse, LimitOrderType, ListOrdersBuilder, ListOrdersResponse, MarketOrderType,
-    Order, PostLimitOrderBuilder, PostMarketOrderBuilder, PostOrderResponse, StopDirection,
+	CancelOrderResponse, LimitOrderType, ListOrdersBuilder, ListOrdersResponse, MarketOrderType,
+	Order, PostLimitOrderBuilder, PostMarketOrderBuilder, PostOrderResponse, StopDirection,
 };
 pub use quotes::{CreateQuoteBuilder, Quote};
 pub use trades::{FeeInfo, ListOwnTradesBuilder, OwnTrade};
