@@ -1,8 +1,8 @@
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
-use crate::client;
 use crate::market::Currency;
+use crate::{client, error::LunoError};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Account {
@@ -42,7 +42,7 @@ impl<'a> ListBalancesBuilder<'a> {
 		self
 	}
 
-	pub async fn list(&self) -> Result<Vec<Balance>, reqwest::Error> {
+	pub async fn list(&self) -> Result<Vec<Balance>, LunoError> {
 		let mut url = self.url.clone();
 		if let Some(assets) = self.assets {
 			url.query_pairs_mut().append_pair(

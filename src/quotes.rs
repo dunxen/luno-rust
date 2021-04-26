@@ -4,7 +4,7 @@ use reqwest::Url;
 use rust_decimal::Decimal;
 use serde::Deserialize;
 
-use crate::{LunoClient, MarketOrderType, TradingPair};
+use crate::{error::LunoError, LunoClient, MarketOrderType, TradingPair};
 
 #[derive(Debug, Deserialize)]
 pub struct Quote {
@@ -37,10 +37,11 @@ impl<'a> CreateQuoteBuilder<'a> {
 		self
 	}
 
-	pub async fn post(&mut self) -> Result<Quote, reqwest::Error> {
+	pub async fn post(&mut self) -> Result<Quote, LunoError> {
 		let url = self.url.clone();
 
-		self.luno_client
+		Ok(self
+			.luno_client
 			.http
 			.post(url)
 			.basic_auth(
@@ -51,6 +52,6 @@ impl<'a> CreateQuoteBuilder<'a> {
 			.send()
 			.await?
 			.json()
-			.await
+			.await?)
 	}
 }

@@ -3,7 +3,7 @@ use serde::Deserialize;
 use reqwest::Url;
 use rust_decimal::Decimal;
 
-use crate::{LimitOrderType, LunoClient, TradingPair};
+use crate::{error::LunoError, LimitOrderType, LunoClient, TradingPair};
 
 /// Represents a trade made on the exchange.
 #[derive(Debug, Deserialize)]
@@ -64,7 +64,7 @@ impl<'a> ListOwnTradesBuilder<'a> {
 		self
 	}
 
-	pub async fn list(&self) -> Result<Vec<OwnTrade>, reqwest::Error> {
+	pub async fn list(&self) -> Result<Vec<OwnTrade>, LunoError> {
 		let mut url = self.url.clone();
 		if let Some(since) = self.since {
 			url.query_pairs_mut()

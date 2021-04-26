@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-use reqwest::{Error, Url};
+use reqwest::Url;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 
-use crate::LunoClient;
 use crate::TradingPair;
+use crate::{error::LunoError, LunoClient};
 
 /// Represents the type of the limit order.
 #[derive(EnumString, Display, Deserialize, Serialize, Debug)]
@@ -86,7 +86,7 @@ impl<'a> ListOrdersBuilder<'a> {
 	}
 
 	/// Executes the list query with the specified parameters.
-	pub async fn list(&self) -> Result<Option<Vec<Order>>, Error> {
+	pub async fn list(&self) -> Result<Option<Vec<Order>>, LunoError> {
 		let mut url = self.url.clone();
 		if let Some(state) = &self.state {
 			url.query_pairs_mut()
@@ -201,10 +201,11 @@ impl<'a> PostLimitOrderBuilder<'a> {
 		self
 	}
 
-	pub async fn post(&mut self) -> Result<PostOrderResponse, Error> {
+	pub async fn post(&mut self) -> Result<PostOrderResponse, LunoError> {
 		let url = self.url.clone();
 
-		self.luno_client
+		Ok(self
+			.luno_client
 			.http
 			.post(url)
 			.basic_auth(
@@ -215,7 +216,7 @@ impl<'a> PostLimitOrderBuilder<'a> {
 			.send()
 			.await?
 			.json()
-			.await
+			.await?)
 	}
 }
 
@@ -237,9 +238,10 @@ impl<'a> PostMarketOrderBuilder<'a> {
 		self
 	}
 
-	pub async fn post(&mut self) -> Result<PostOrderResponse, Error> {
+	pub async fn post(&mut self) -> Result<PostOrderResponse, LunoError> {
 		let url = self.url.clone();
-		self.luno_client
+		Ok(self
+			.luno_client
 			.http
 			.post(url)
 			.basic_auth(
@@ -250,6 +252,6 @@ impl<'a> PostMarketOrderBuilder<'a> {
 			.send()
 			.await?
 			.json()
-			.await
+			.await?)
 	}
 }
