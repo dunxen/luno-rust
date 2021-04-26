@@ -8,6 +8,7 @@
 pub mod accounts;
 pub mod beneficiaries;
 pub mod client;
+pub mod error;
 pub mod market;
 pub mod orders;
 pub mod quotes;

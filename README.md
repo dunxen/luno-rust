@@ -60,4 +60,4 @@ Trade { is_buy: false, price: 357357.00, timestamp: 1608451961962, volume: 0.002
 ...
 ```
 
-By default, all methods are asynchronous and return a `Future` wrapping `Result<T, reqwest::Error>`.
+By default, all methods are asynchronous and return a `Future` wrapping `Result<T, luno::error::LunoError>`.

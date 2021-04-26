@@ -6,11 +6,12 @@ use rust_decimal::Decimal;
 use serde::de::DeserializeOwned;
 
 use crate::{
-	Account, Beneficiary, CancelOrderResponse, CreateQuoteBuilder, Credentials, Currency, FeeInfo,
-	LimitOrderType, ListBalancesBuilder, ListBeneficiariesResponse, ListOrdersBuilder,
-	ListOwnTradesBuilder, ListPendingTransactionsResponse, ListTickersResponse, ListTradesResponse,
-	ListTransactionsResponse, MarketOrderType, Order, Orderbook, PostLimitOrderBuilder,
-	PostMarketOrderBuilder, Quote, Ticker, Trade, TradingPair, UpdateAccountNameResponse, UrlMaker,
+	error::LunoError, Account, Beneficiary, CancelOrderResponse, CreateQuoteBuilder, Credentials,
+	Currency, FeeInfo, LimitOrderType, ListBalancesBuilder, ListBeneficiariesResponse,
+	ListOrdersBuilder, ListOwnTradesBuilder, ListPendingTransactionsResponse, ListTickersResponse,
+	ListTradesResponse, ListTransactionsResponse, MarketOrderType, Order, Orderbook,
+	PostLimitOrderBuilder, PostMarketOrderBuilder, Quote, Ticker, Trade, TradingPair,
+	UpdateAccountNameResponse, UrlMaker,
 };
 
 const API_BASE: &str = "https://api.luno.com/api/1/";
@@ -35,11 +36,12 @@ impl LunoClient {
 		}
 	}
 
-	pub(crate) async fn get<T>(&self, url: reqwest::Url) -> Result<T, reqwest::Error>
+	pub(crate) async fn get<T>(&self, url: reqwest::Url) -> Result<T, LunoError>
 	where
 		T: DeserializeOwned,
 	{
-		self.http
+		Ok(self
+			.http
 			.get(url)
 			.basic_auth(
 				self.credentials.key.to_owned(),
@@ -48,14 +50,15 @@ impl LunoClient {
 			.send()
 			.await?
 			.json::<T>()
-			.await
+			.await?)
 	}
 
-	pub(crate) async fn put<T>(&self, url: reqwest::Url) -> Result<T, reqwest::Error>
+	pub(crate) async fn put<T>(&self, url: reqwest::Url) -> Result<T, LunoError>
 	where
 		T: DeserializeOwned,
 	{
-		self.http
+		Ok(self
+			.http
 			.put(url)
 			.basic_auth(
 				self.credentials.key.to_owned(),
@@ -64,14 +67,15 @@ impl LunoClient {
 			.send()
 			.await?
 			.json::<T>()
-			.await
+			.await?)
 	}
 
-	pub(crate) async fn delete<T>(&self, url: reqwest::Url) -> Result<T, reqwest::Error>
+	pub(crate) async fn delete<T>(&self, url: reqwest::Url) -> Result<T, LunoError>
 	where
 		T: DeserializeOwned,
 	{
-		self.http
+		Ok(self
+			.http
 			.delete(url)
 			.basic_auth(
 				self.credentials.key.to_owned(),
@@ -80,17 +84,17 @@ impl LunoClient {
 			.send()
 			.await?
 			.json::<T>()
-			.await
+			.await?)
 	}
 
 	/// Returns the latest ticker indicators.
-	pub async fn get_ticker(&self, pair: TradingPair) -> Result<Ticker, reqwest::Error> {
+	pub async fn get_ticker(&self, pair: TradingPair) -> Result<Ticker, LunoError> {
 		let url = self.url_maker.ticker(pair);
 		self.get(url).await
 	}
 
 	/// Returns the latest ticker indicators from all active Luno exchanges.
-	pub async fn list_tickers(&self) -> Result<Vec<Ticker>, reqwest::Error> {
+	pub async fn list_tickers(&self) -> Result<Vec<Ticker>, LunoError> {
 		let url = self.url_maker.tickers();
 		Ok(self.get::<ListTickersResponse>(url).await?.tickers)
 	}
@@ -98,7 +102,7 @@ impl LunoClient {
 	/// Returns a list of the top 100 bids and asks in the order book.
 	/// Ask orders are sorted by price ascending.
 	/// Bid orders are sorted by price descending. Orders of the same price are aggregated.
-	pub async fn get_orderbook_top(&self, pair: TradingPair) -> Result<Orderbook, reqwest::Error> {
+	pub async fn get_orderbook_top(&self, pair: TradingPair) -> Result<Orderbook, LunoError> {
 		let url = self.url_maker.orderbook_top(pair);
 		self.get(url).await
 	}
@@ -108,14 +112,14 @@ impl LunoClient {
 	/// Multiple orders at the same price are not aggregated.
 	///
 	/// Warning: This may return a large amount of data. Generally you should rather use `get_orderbook_top` or the Streaming API.
-	pub async fn get_orderbook(&self, pair: TradingPair) -> Result<Orderbook, reqwest::Error> {
+	pub async fn get_orderbook(&self, pair: TradingPair) -> Result<Orderbook, LunoError> {
 		let url = self.url_maker.orderbook(pair);
 		self.get(url).await
 	}
 
 	/// Returns a list of the most recent trades that happened in the last 24h.
 	/// At most 100 results are returned per call.
-	pub async fn list_trades(&self, pair: TradingPair) -> Result<Vec<Trade>, reqwest::Error> {
+	pub async fn list_trades(&self, pair: TradingPair) -> Result<Vec<Trade>, LunoError> {
 		let url = self.url_maker.trades(pair);
 		Ok(self.get::<ListTradesResponse>(url).await?.trades)
 	}
@@ -129,13 +133,14 @@ impl LunoClient {
 		&self,
 		currency: Currency,
 		name: &str,
-	) -> Result<Account, reqwest::Error> {
+	) -> Result<Account, LunoError> {
 		let url = self.url_maker.accounts();
 		let mut params = HashMap::new();
 		params.insert("currency", currency.to_string());
 		params.insert("name", name.to_string());
 
-		self.http
+		Ok(self
+			.http
 			.post(url)
 			.basic_auth(
 				self.credentials.key.to_owned(),
@@ -145,7 +150,7 @@ impl LunoClient {
 			.send()
 			.await?
 			.json::<Account>()
-			.await
+			.await?)
 	}
 
 	/// Update the name of an account with a given ID,
@@ -155,7 +160,7 @@ impl LunoClient {
 		&self,
 		account_id: &str,
 		name: &str,
-	) -> Result<UpdateAccountNameResponse, reqwest::Error> {
+	) -> Result<UpdateAccountNameResponse, LunoError> {
 		let url = self.url_maker.account_name(account_id, name);
 		self.put(url).await
 	}
@@ -191,7 +196,7 @@ impl LunoClient {
 		account_id: &str,
 		min_row: i64,
 		max_row: i64,
-	) -> Result<ListTransactionsResponse, reqwest::Error> {
+	) -> Result<ListTransactionsResponse, LunoError> {
 		let url = self.url_maker.transactions(account_id, min_row, max_row);
 		self.get(url).await
 	}
@@ -204,7 +209,7 @@ impl LunoClient {
 	pub async fn list_pending_transactions(
 		&self,
 		account_id: &str,
-	) -> Result<ListPendingTransactionsResponse, reqwest::Error> {
+	) -> Result<ListPendingTransactionsResponse, LunoError> {
 		let url = self.url_maker.pending_transactions(account_id);
 		self.get(url).await
 	}
@@ -212,7 +217,7 @@ impl LunoClient {
 	/// Returns a list of bank beneficiaries
 	///
 	/// Permissions required: Perm_R_Beneficiaries
-	pub async fn list_beneficiaries(&self) -> Result<Vec<Beneficiary>, reqwest::Error> {
+	pub async fn list_beneficiaries(&self) -> Result<Vec<Beneficiary>, LunoError> {
 		let url = self.url_maker.beneficiaries();
 		Ok(self
 			.get::<ListBeneficiariesResponse>(url)
@@ -292,15 +297,13 @@ impl LunoClient {
 	}
 
 	/// Request to cancel an order.
-	pub async fn cancel_order(
-		&self,
-		order_id: &str,
-	) -> Result<CancelOrderResponse, reqwest::Error> {
+	pub async fn cancel_order(&self, order_id: &str) -> Result<CancelOrderResponse, LunoError> {
 		let url = self.url_maker.stop_order();
 		let mut params = HashMap::new();
 		params.insert("order_id", order_id.to_string());
 
-		self.http
+		Ok(self
+			.http
 			.post(url)
 			.basic_auth(
 				self.credentials.key.to_owned(),
@@ -310,11 +313,11 @@ impl LunoClient {
 			.send()
 			.await?
 			.json::<CancelOrderResponse>()
-			.await
+			.await?)
 	}
 
 	/// Get an order by its ID.
-	pub async fn get_order(&self, order_id: &str) -> Result<Order, reqwest::Error> {
+	pub async fn get_order(&self, order_id: &str) -> Result<Order, LunoError> {
 		let url = self.url_maker.orders(order_id);
 		self.get(url).await
 	}
@@ -341,7 +344,7 @@ impl LunoClient {
 
 	/// Returns the fees and 30 day trading volume (as of midnight) for a given currency pair.
 	/// For complete details, please see [Fees & Features](https://www.luno.com/en/countries).
-	pub async fn get_fee_info(&self, pair: TradingPair) -> Result<FeeInfo, reqwest::Error> {
+	pub async fn get_fee_info(&self, pair: TradingPair) -> Result<FeeInfo, LunoError> {
 		let url = self.url_maker.fee_info(pair);
 		self.get(url).await
 	}
@@ -377,7 +380,7 @@ impl LunoClient {
 	/// Get the latest status of a quote by its id.
 	///
 	/// Permissions required: `Perm_R_Orders`
-	pub async fn get_quote(&self, id: &str) -> Result<Quote, reqwest::Error> {
+	pub async fn get_quote(&self, id: &str) -> Result<Quote, LunoError> {
 		let url = self.url_maker.quote_action(id);
 		self.get(url).await
 	}
@@ -388,7 +391,7 @@ impl LunoClient {
 	/// An error is returned if the quote has expired or if the Account has insufficient available balance.
 	///
 	/// Permissions required: `Perm_W_Orders`
-	pub async fn exercise_quote(&self, id: &str) -> Result<Quote, reqwest::Error> {
+	pub async fn exercise_quote(&self, id: &str) -> Result<Quote, LunoError> {
 		let url = self.url_maker.quote_action(id);
 		self.put(url).await
 	}
@@ -397,7 +400,7 @@ impl LunoClient {
 	/// Once a Quote has been discarded, it cannot be exercised even if it has not expired.
 	///
 	/// Permissions required: `Perm_W_Orders`
-	pub async fn discard_quote(&self, id: &str) -> Result<Quote, reqwest::Error> {
+	pub async fn discard_quote(&self, id: &str) -> Result<Quote, LunoError> {
 		let url = self.url_maker.quote_action(id);
 		self.delete(url).await
 	}
