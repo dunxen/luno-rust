@@ -1,7 +1,8 @@
-# (Unofficial) Luno Rust API Wrapper 🦀🚀
+# Luno Rust API Wrapper 🦀🚀
 
 ![Rust](https://github.com/duncandean/luno-rust/workflows/Rust/badge.svg)
 [![codecov](https://codecov.io/gh/duncandean/luno-rust/branch/main/graph/badge.svg)](https://codecov.io/gh/duncandean/luno-rust)
+[![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 
 A work-in-progress.
 
